@@ -24,6 +24,7 @@ public class Conexion {
     
     private static Statement stmt;
     private static ResultSet rs;
+    public static String Id_Empleado = "";
     
     public Conexion() throws SQLException{
         
@@ -56,13 +57,14 @@ public class Conexion {
         
         try {
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT Nombre, Apellido_P, Usuario, Pass FROM Empleado WHERE Usuario ='" + Usuario + "' AND Pass ='" + Contraseña + "' ");
+            rs = stmt.executeQuery("SELECT Id_empleado, Nombre, Apellido_P, Usuario, Pass FROM Empleado WHERE Usuario ='" + Usuario + "' AND Pass ='" + Contraseña + "' ");
             rs.next();
             do{
                
                 
                 if(rs.getString("Usuario").equals(Usuario) && rs.getString("Pass").equals(Contraseña)){
                     Dato = rs.getString("Nombre") + " " + rs.getString("Apellido_P");
+                    Id_Empleado = rs.getString("Id_empleado");
                 }
                 
             }while(rs.next());

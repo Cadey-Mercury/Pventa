@@ -117,7 +117,23 @@ CREATE TABLE Inventario(
     FOREIGN KEY (Id_producto_FK) REFERENCES Producto(Id_producto)
 )ENGINE = INNODB;
 
+-- PROCEDIMIENTO ALMACENADO --
+DROP PROCEDURE IF EXISTS Carrito;
+DELIMITER // 
+CREATE PROCEDURE Carrito(IN CodigoB VARCHAR(45), IN CantidadP INT, IN Id_Aux_VentaP INT)
+BEGIN
 
+    DECLARE TotalP INT;
+    DECLARE Nombre_CompletoP VARCHAR(45);
+
+    SELECT (Precio_ventCantidadP) INTO TotalP FROM Producto WHERE Codigo_Barras = CodigoB;
+    SELECT concat(Nombre," ",Descripcion) INTO Nombre_CompletoP FROM Producto WHERE Codigo_Barras = CodigoB;
+
+    INSERT INTO CarritoDeCompra(Nombre_Completo,Cantidad,Total,Id_Aux_Venta) VALUES(Nombre_CompletoP, CantidadP, TotalP, Id_Aux_VentaP);
+END //
+DELIMITER ;
+
+-- INSERT-- 
 insert into Tienda(Nombre, Direccion, RFC, Ciudad, Telefono)Values("LG", "Forjadores", "abcde", "La paz", "1234567");
 insert into Proveedor(Nombre, RFC, Telefono, Empresa, Direccion, Estado, Municipio) Values ("Rodolfo", "R6969", "111111", "Pepsico", "Cardonal", "B.C.S.", "La paz");
 INSERT INTO Puesto(Nombre)VALUES("Administrador");
@@ -127,6 +143,8 @@ insert into Producto(Nombre, Descripcion, Precio_prov, Precio_vent, Marca, Canti
 insert into Empleado(Nombre, Apellido_P, Apellido_M, Direccion, Telefono, Usuario, Pass, Id_tienda_FK, Id_puesto_FK)Values("Jair", "Estrada", "Palomino",
  "Marquez de leon", "123456", "Jest", "1234", 1, 1);
 INSERT INTO Login(Id_empleado_FK)VALUES(1);
+
+-- SELECT --
 SELECT Nombre, Apellido_P FROM Empleado where Usuario = "Jest" AND Pass = "1234";
 SELECT * FROM Tienda;
 SELECT * FROM Proveedor;
@@ -135,5 +153,8 @@ SELECT * FROM Producto;
 SELECT * FROM Puesto;
 SELECT * FROM Empleado;
 SELECT * FROM Login;
-
 SELECT Nombre, Descripcion, Precio_vent FROM Producto WHERE Codigo_Barras = "M02";
+
+CALL Carrito("M02",3,1);
+
+SELECT * FROM CarritoDeCompra;
