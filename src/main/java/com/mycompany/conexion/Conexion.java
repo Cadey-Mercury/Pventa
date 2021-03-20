@@ -3,6 +3,7 @@ package com.mycompany.conexion;
 
 import com.mycompany.pventa.LogIn;
 import com.mycompany.pventa.Main;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -12,6 +13,7 @@ import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 
 public class Conexion {
@@ -23,6 +25,7 @@ public class Conexion {
     private static final String url = "jdbc:mysql://localhost:3306/PVenta";
     
     private static Statement stmt;
+    //private static CallableStatement cst;
     private static ResultSet rs;
     public static String Id_Empleado = "";
     
@@ -75,22 +78,48 @@ public class Conexion {
         return Dato;
     }
     
-    /*public void BuscarProducto(String Codigo, int Cantidad){
+    public DefaultTableModel BuscarProducto(String Codigo, int Cantidad, int Id){
+        
+        DefaultTableModel modelo = new DefaultTableModel();
         try {
-            stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT Nombre, Descripcion, Precio_vent FROM Producto WHERE Codigo_Barras ='" + Codigo + "' ");
-            ResultSetMetaData rsMd = rs.getMetaData();
-            //int cantidadColumnas = rsMd.getColumnCount():
+            CallableStatement cst = conn.prepareCall("{CALL Carrito(?,?,?)}");
+            cst.setString(1, Codigo);
+            cst.setInt(2, Cantidad);
+            cst.setInt(3, Id);
+            rs = cst.executeQuery();
             
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT Nombre_Completo, Cantidad, Precio, Total FROM CarritoDeCompra");
             rs.next();
+            
+            ResultSetMetaData rsMd = rs.getMetaData();
+            int cantidadColumnas = rsMd.getColumnCount();
+            
+            modelo.addColumn("Nombre");
+            modelo.addColumn("Cantidad");
+            modelo.addColumn("Precio");
+            modelo.addColumn("Total");
+        
+        
             do{
-               
                 
+                Object[] filas = new Object[cantidadColumnas];
+                
+                for(int i = 0; i < cantidadColumnas; i++){
+                    
+                    filas[i] = rs.getObject(i + 1);
+                    
+                }
+                
+                modelo.addRow(filas);
                 
             }while(rs.next());
             
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error, intente nuevamente... ");
+            
+            JOptionPane.showMessageDialog(null, "Producto no encontrado... ");
         }
-    }*/
+        
+        return modelo;
+    }
 }
