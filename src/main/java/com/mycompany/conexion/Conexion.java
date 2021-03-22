@@ -81,12 +81,23 @@ public class Conexion {
     public DefaultTableModel BuscarProducto(String Codigo, int Cantidad, int Id){
         
         DefaultTableModel modelo = new DefaultTableModel();
+        String Respuesta = "";
         try {
+            
             CallableStatement cst = conn.prepareCall("{CALL Carrito(?,?,?)}");
             cst.setString(1, Codigo);
             cst.setInt(2, Cantidad);
             cst.setInt(3, Id);
             rs = cst.executeQuery();
+            
+            while(rs.next()){
+                Respuesta = rs.getString(1).toString();
+            }
+            
+            if(Respuesta.equals("El producto no existe")){
+                JOptionPane.showMessageDialog(null, Respuesta);
+            }
+            
             
             stmt = conn.createStatement();
             rs = stmt.executeQuery("SELECT Nombre_Completo, Cantidad, Precio, Total FROM CarritoDeCompra");
@@ -102,7 +113,6 @@ public class Conexion {
         
         
             do{
-                
                 Object[] filas = new Object[cantidadColumnas];
                 
                 for(int i = 0; i < cantidadColumnas; i++){

@@ -124,16 +124,24 @@ DROP PROCEDURE IF EXISTS Carrito;
 DELIMITER // 
 CREATE PROCEDURE Carrito(IN CodigoB VARCHAR(45), IN CantidadP INT, IN Id_Aux_VentaP INT)
 BEGIN
-
     DECLARE TotalP INT;
     DECLARE PrecioP INT;
     DECLARE Nombre_CompletoP VARCHAR(45);
-
-    SELECT (Precio_vent * CantidadP) INTO TotalP FROM Producto WHERE Codigo_Barras = CodigoB;
-    SELECT Precio_vent INTO PrecioP FROM Producto WHERE Codigo_Barras = CodigoB;
-    SELECT concat(Nombre," ",Descripcion) INTO Nombre_CompletoP FROM Producto WHERE Codigo_Barras = CodigoB;
-
-    INSERT INTO CarritoDeCompra(Nombre_Completo, Cantidad, Precio, Total, Id_Aux_Venta) VALUES(Nombre_CompletoP, CantidadP, PrecioP, TotalP, Id_Aux_VentaP);
+    DECLARE ExistenciaP VARCHAR(45);
+    IF NOT EXISTS(SELECT Nombre FROM Producto WHERE Codigo_Barras = CodigoB)
+    THEN
+		SET @RESPUESTA = 'El producto no existe';
+        SELECT @RESPUESTA AS respuesta;
+    ELSE IF EXISTS(SELECT Nombre FROM Producto WHERE Codigo_Barras = CodigoB)
+		THEN
+			SET @RESPUESTA = 'Producto encontrado';
+			SELECT @RESPUESTA AS respuesta;
+			SELECT (Precio_vent * CantidadP) INTO TotalP FROM Producto WHERE Codigo_Barras = CodigoB;
+			SELECT Precio_vent INTO PrecioP FROM Producto WHERE Codigo_Barras = CodigoB;
+			SELECT concat(Nombre," ",Descripcion) INTO Nombre_CompletoP FROM Producto WHERE Codigo_Barras = CodigoB;
+			INSERT INTO CarritoDeCompra(Nombre_Completo, Cantidad, Precio, Total, Id_Aux_Venta) VALUES(Nombre_CompletoP, CantidadP, PrecioP, TotalP, Id_Aux_VentaP);
+            END IF;
+    END IF;
 END //
 DELIMITER ;
 
@@ -160,5 +168,9 @@ SELECT * FROM Login;
 SELECT Nombre, Descripcion, Precio_vent FROM Producto WHERE Codigo_Barras = "M02";
 
 CALL Carrito("M02",3,1);
+
+-- Probar
+SELECT Nombre, Descripcion, Precio_vent FROM Producto WHERE Codigo_Barras = "X02";
+CALL Carrito("X02",3,1);
 
 SELECT * FROM CarritoDeCompra;
