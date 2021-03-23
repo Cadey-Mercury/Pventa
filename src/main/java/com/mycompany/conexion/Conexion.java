@@ -78,16 +78,24 @@ public class Conexion {
         return Dato;
     }
     
-    public DefaultTableModel BuscarProducto(String Codigo, int Cantidad, int Id){
+    public DefaultTableModel BuscarProducto(String Codigo, int Cantidad){
         
         DefaultTableModel modelo = new DefaultTableModel();
         String Respuesta = "";
+        int Id_Carrito = 0;
         try {
             
+            CallableStatement cst1 = conn.prepareCall("{CALL ExtraerId()}");
+            rs = cst1.executeQuery();
+            
+            while(rs.next()){
+                Id_Carrito = Integer.parseInt(rs.getString(1).toString()) + 1;
+            }
+           
             CallableStatement cst = conn.prepareCall("{CALL Carrito(?,?,?)}");
             cst.setString(1, Codigo);
             cst.setInt(2, Cantidad);
-            cst.setInt(3, Id);
+            cst.setInt(3, Id_Carrito);
             rs = cst.executeQuery();
             
             while(rs.next()){
@@ -100,7 +108,7 @@ public class Conexion {
             
             
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT Nombre_Completo, Cantidad, Precio, Total FROM CarritoDeCompra");
+            rs = stmt.executeQuery("SELECT Nombre_Completo, Cantidad, Precio, Total FROM CarritoDeCompra WHERE Id_Aux_Venta ='" + Id_Carrito + "'");
             rs.next();
             
             ResultSetMetaData rsMd = rs.getMetaData();

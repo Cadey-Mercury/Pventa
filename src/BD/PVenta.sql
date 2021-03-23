@@ -70,6 +70,7 @@ CREATE TABLE Login(
     FOREIGN KEY (Id_empleado_FK) REFERENCES Empleado(Id_empleado)
 )ENGINE = INNODB;
 
+-- drop table if exists Venta;
 CREATE TABLE Venta(
     Id_venta INT PRIMARY KEY AUTO_INCREMENT,
     FechaHora DATETIME NOT NULL,
@@ -82,7 +83,7 @@ CREATE TABLE Venta(
     FOREIGN KEY (Id_empleado_FK) REFERENCES Empleado(Id_empleado)
 )ENGINE = INNODB;
 
-DROP TABLE IF EXISTS CarritoDeCompra;
+-- DROP TABLE IF EXISTS CarritoDeCompra;
 CREATE TABLE CarritoDeCompra(
 	Id_Carrito INT PRIMARY KEY AUTO_INCREMENT,
 	Nombre_Completo VARCHAR(45) NOT NULL,
@@ -145,6 +146,26 @@ BEGIN
 END //
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS ExtraerId;
+DELIMITER // 
+CREATE PROCEDURE ExtraerId()
+BEGIN
+    DECLARE AUX INT;
+     IF NOT EXISTS(SELECT Id_venta FROM Venta )
+    THEN
+        SET @RESPUESTA = '0';
+        SELECT @RESPUESTA AS respuesta;
+    ELSE IF EXISTS(SELECT MAX(Id_venta) FROM Venta)
+        THEN
+            SELECT Id_venta INTO AUX FROM Venta;
+            SET @RESPUESTA = AUX;
+            SELECT @RESPUESTA AS respuesta;
+            END IF;
+    END IF;
+
+END //
+DELIMITER ;
+
 -- INSERT-- 
 insert into Tienda(Nombre, Direccion, RFC, Ciudad, Telefono)Values("LG", "Forjadores", "abcde", "La paz", "1234567");
 insert into Proveedor(Nombre, RFC, Telefono, Empresa, Direccion, Estado, Municipio) Values ("Rodolfo", "R6969", "111111", "Pepsico", "Cardonal", "B.C.S.", "La paz");
@@ -155,6 +176,7 @@ insert into Producto(Nombre, Descripcion, Precio_prov, Precio_vent, Marca, Canti
 insert into Empleado(Nombre, Apellido_P, Apellido_M, Direccion, Telefono, Usuario, Pass, Id_tienda_FK, Id_puesto_FK)Values("Jair", "Estrada", "Palomino",
  "Marquez de leon", "123456", "Jest", "1234", 1, 1);
 INSERT INTO Login(Id_empleado_FK)VALUES(1);
+INSERT INTO Venta(FechaHora,Total,Cambio,Pago,Cantidad,Id_empleado_FK) VALUES (NOW(),100,0,100,2,1);
 
 -- SELECT --
 SELECT Nombre, Apellido_P FROM Empleado where Usuario = "Jest" AND Pass = "1234";
@@ -165,12 +187,11 @@ SELECT * FROM Producto;
 SELECT * FROM Puesto;
 SELECT * FROM Empleado;
 SELECT * FROM Login;
+SELECT * FROM Venta;
+SELECT * FROM CarritoDeCompra;
+SELECT MAX(Id_venta) FROM Venta;
 SELECT Nombre, Descripcion, Precio_vent FROM Producto WHERE Codigo_Barras = "M02";
 
-CALL Carrito("M02",3,1);
-
--- Probar
-SELECT Nombre, Descripcion, Precio_vent FROM Producto WHERE Codigo_Barras = "X02";
-CALL Carrito("X02",3,1);
-
-SELECT * FROM CarritoDeCompra;
+-- Llamada al procedimiento!
+CALL Carrito("M02",3,2);
+CALL ExtraerId();

@@ -23,9 +23,9 @@ public class Main extends javax.swing.JFrame {
 
     int Cantidad;
     String Codigo;
-    int Id_Aux = 1;
     Conexion con;
     Connection bd;
+    int TotalVenta = 0;
     
     /**
      * Creates new form Main
@@ -184,6 +184,11 @@ public class Main extends javax.swing.JFrame {
 
         jButton2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jButton2.setText("Pagar");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -261,10 +266,23 @@ public class Main extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jInsertProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jInsertProductoActionPerformed
+        TotalVenta = 0;
         Codigo = txtCodigoDeBarra.getText();
         Cantidad = Integer.parseInt(txtCantidad.getText());
-        this.jtProducto.setModel(con.BuscarProducto(Codigo, Cantidad, Id_Aux));
+        this.jtProducto.setModel(con.BuscarProducto(Codigo, Cantidad));
+        for(int i = 0; i < jtProducto.getRowCount(); i++){
+            TotalVenta += Integer.parseInt(jtProducto.getValueAt(i, 3).toString());
+        }
+        jLabel2.setText("Total Venta: " + TotalVenta);
     }//GEN-LAST:event_jInsertProductoActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+       int Cambio = 0;
+       int Pago = 0;
+       Pago = Integer.parseInt(txtPago.getText());
+       Cambio = Pago - TotalVenta;
+       jLabel3.setText("Cambio: " + Cambio);
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
