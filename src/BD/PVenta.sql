@@ -151,13 +151,13 @@ DELIMITER //
 CREATE PROCEDURE ExtraerId()
 BEGIN
     DECLARE AUX INT;
-     IF NOT EXISTS(SELECT Id_venta FROM Venta )
+     IF NOT EXISTS(SELECT MAX(Id_venta) FROM Venta )
     THEN
         SET @RESPUESTA = '0';
         SELECT @RESPUESTA AS respuesta;
     ELSE IF EXISTS(SELECT MAX(Id_venta) FROM Venta)
         THEN
-            SELECT Id_venta INTO AUX FROM Venta;
+            SELECT MAX(Id_venta) INTO AUX FROM Venta;
             SET @RESPUESTA = AUX;
             SELECT @RESPUESTA AS respuesta;
             END IF;

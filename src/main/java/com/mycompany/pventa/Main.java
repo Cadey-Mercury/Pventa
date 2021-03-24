@@ -26,6 +26,9 @@ public class Main extends javax.swing.JFrame {
     Conexion con;
     Connection bd;
     int TotalVenta = 0;
+    int TotalCantidad = 0;
+    int Cambio = 0;
+    int Pago = 0;
     
     /**
      * Creates new form Main
@@ -33,7 +36,7 @@ public class Main extends javax.swing.JFrame {
     public Main() {
         initComponents();
         this.setLocationRelativeTo(null);
-        lblUsuario.setText(Dato + " " + Id_Empleado);
+        lblUsuario.setText(Dato);
         new PlaceHolder(txtPago, "Ingrese el pago");
         new PlaceHolder(txtCodigoDeBarra, "Ingrese el codigo de barra");
         new PlaceHolder(txtCantidad, "cantidad");
@@ -103,21 +106,25 @@ public class Main extends javax.swing.JFrame {
         jtProducto.setForeground(new java.awt.Color(153, 0, 0));
         jtProducto.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null}
             },
             new String [] {
-                "Descripcion", "Producto", "Cantidad", "Precio", "Total"
+                "Producto", "Cantidad", "Precio", "Total"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
+                java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
         jScrollPane1.setViewportView(jtProducto);
@@ -267,23 +274,45 @@ public class Main extends javax.swing.JFrame {
 
     private void jInsertProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jInsertProductoActionPerformed
         TotalVenta = 0;
+        TotalCantidad = 0;
         Codigo = txtCodigoDeBarra.getText();
         Cantidad = Integer.parseInt(txtCantidad.getText());
         this.jtProducto.setModel(con.BuscarProducto(Codigo, Cantidad));
+        
         for(int i = 0; i < jtProducto.getRowCount(); i++){
             TotalVenta += Integer.parseInt(jtProducto.getValueAt(i, 3).toString());
+            TotalCantidad += Integer.parseInt(jtProducto.getValueAt(i, 2).toString());
         }
+        
         jLabel2.setText("Total Venta: " + TotalVenta);
     }//GEN-LAST:event_jInsertProductoActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-       int Cambio = 0;
-       int Pago = 0;
+       Cambio = 0;
+       Pago = 0;
        Pago = Integer.parseInt(txtPago.getText());
        Cambio = Pago - TotalVenta;
        jLabel3.setText("Cambio: " + Cambio);
+       con.InsertarVenta(TotalVenta, Cambio, Pago, TotalCantidad, Integer.parseInt(Id_Empleado));
+       LimpiarPantalla();
+       this.jtProducto.setModel(con.LimpiarJTable());
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    public void LimpiarPantalla(){
+       txtPago.setText(null);
+       txtCodigoDeBarra.setText(null);
+       txtCantidad.setText(null);
+       txtCodigoDeBarra.requestFocus();
+       jLabel3.setText("Cambio: ");
+       Cambio = 0;
+       TotalVenta = 0;
+       jLabel2.setText("Total Venta: ");
+       new PlaceHolder(txtPago, "Ingrese el pago");
+       new PlaceHolder(txtCodigoDeBarra, "Ingrese el codigo de barra");
+       new PlaceHolder(txtCantidad, "cantidad");
+    }
+
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

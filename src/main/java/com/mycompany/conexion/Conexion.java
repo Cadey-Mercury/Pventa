@@ -6,6 +6,7 @@ import com.mycompany.pventa.Main;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -25,6 +26,7 @@ public class Conexion {
     private static final String url = "jdbc:mysql://localhost:3306/PVenta";
     
     private static Statement stmt;
+    PreparedStatement ps;
     //private static CallableStatement cst;
     private static ResultSet rs;
     public static String Id_Empleado = "";
@@ -135,9 +137,38 @@ public class Conexion {
             
         } catch (SQLException ex) {
             
-            JOptionPane.showMessageDialog(null, "Producto no encontrado... ");
+            JOptionPane.showMessageDialog(null, "Mensaje: " + ex);
         }
         
         return modelo;
+    }
+    
+    public void InsertarVenta(int TotalVenta, int Cambio, int Pago, int Cantidad, int Id_Empleado){
+        
+        try {
+            
+            ps = conn.prepareStatement("INSERT INTO Venta(FechaHora,Total,Cambio,Pago,Cantidad,Id_empleado_FK) VALUES (NOW(), ?, ?, ?, ?, ?)");
+            ps.setInt(1, TotalVenta);  
+            ps.setInt(2, Cambio);  
+            ps.setInt(3, Pago);  
+            ps.setInt(4, Cantidad);
+            ps.setInt(5, Id_Empleado);
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Regrese pronto!");
+            
+        } catch (SQLException ex) {
+            
+            JOptionPane.showMessageDialog(null, "Mensaje: " + ex);
+        }
+    }
+    public DefaultTableModel LimpiarJTable(){
+        DefaultTableModel modelo = new DefaultTableModel();
+        modelo.addColumn("Nombre");
+        modelo.addColumn("Cantidad");
+        modelo.addColumn("Precio");
+        modelo.addColumn("Total");
+        modelo.setRowCount(1);
+        
+       return modelo; 
     }
 }
