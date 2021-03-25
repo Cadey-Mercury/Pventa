@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -168,7 +169,17 @@ public class Main extends javax.swing.JFrame {
         );
 
         jComboBox1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Menú", "Reportes", "Productos", "Inventario", "Proveedor", "Cambio Cajero" }));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Menú", "Reportes", "Productos", "Inventario", "Proveedor", "Departamento", "Cambio Cajero" }));
+        jComboBox1.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jComboBox1ItemStateChanged(evt);
+            }
+        });
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox1ActionPerformed(evt);
+            }
+        });
 
         jTextField1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jTextField1.setText("16/03/21");
@@ -297,6 +308,50 @@ public class Main extends javax.swing.JFrame {
        LimpiarPantalla();
        this.jtProducto.setModel(con.LimpiarJTable());
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jComboBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox1ItemStateChanged
+        
+        
+    }//GEN-LAST:event_jComboBox1ItemStateChanged
+
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+        
+        int Index = jComboBox1.getSelectedIndex();
+        //String [] pVenta = new String[]{"Menú", "Reportes", "Productos", "Inventario", "Proveedor", "Departamento", "Cambio cajero"}; 
+        switch(Index){
+            case 1:{ 
+                    
+                    //JOptionPane.showMessageDialog(null, "Esta en " + pVenta[Index]);
+                break;
+            }
+            case 2:{
+                    this.setVisible(false);
+                    new Producto().setVisible(true);
+                    //JOptionPane.showMessageDialog(null, "Esta en " + pVenta[Index]);
+                break;
+            }
+            case 3:{
+                    this.setVisible(false);
+                    new Inventario().setVisible(true);
+                break;
+            }
+            case 4:{
+                    this.setVisible(false);
+                    new Proveedor().setVisible(true);
+                break;
+            }
+            case 5:{
+                    this.setVisible(false);
+                    new Departamento().setVisible(true);
+                break;
+            }
+            case 6:{
+                    this.setVisible(false);
+                    new Producto().setVisible(true);
+                break;
+            }
+        }
+    }//GEN-LAST:event_jComboBox1ActionPerformed
 
     public void LimpiarPantalla(){
        txtPago.setText(null);

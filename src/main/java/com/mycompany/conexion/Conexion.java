@@ -27,9 +27,11 @@ public class Conexion {
     
     private static Statement stmt;
     PreparedStatement ps;
-    //private static CallableStatement cst;
     private static ResultSet rs;
     public static String Id_Empleado = "";
+    public static String Id_Departamento = "";
+    public static String Id_Tienda = "";
+    public static String Id_Proveedor = "";
     
     public Conexion() throws SQLException{
         
@@ -170,5 +172,26 @@ public class Conexion {
         modelo.setRowCount(1);
         
        return modelo; 
+    }
+    public String ExtraerDepartamento(){
+        
+        String Dato = null;
+        
+        try {
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT Id_departamento, Nombre FROM Departamento");
+            rs.next();
+            do{
+               
+                Dato = rs.getString("Nombre");
+                
+            }while(rs.next());
+            
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error, intente nuevamente... ");
+        }
+        
+        return Dato;
+        
     }
 }

@@ -39,7 +39,7 @@ CREATE TABLE Producto(
     Precio_prov VARCHAR(45) NOT NULL,
     Precio_vent VARCHAR(45) NOT NULL,
     Marca VARCHAR(45) NOT NULL,
-    Cantidad VARCHAR(45) NOT NULL,
+    Cantidad INT NOT NULL,
     Codigo_Barras VARCHAR(45) NOT NULL,
     Id_tienda_FK INT,
     Id_departamento_FK INT,
@@ -127,6 +127,8 @@ CREATE PROCEDURE Carrito(IN CodigoB VARCHAR(45), IN CantidadP INT, IN Id_Aux_Ven
 BEGIN
     DECLARE TotalP INT;
     DECLARE PrecioP INT;
+    DECLARE Aux_Cantidad INT;
+    DECLARE AUX INT;
     DECLARE Nombre_CompletoP VARCHAR(45);
     DECLARE ExistenciaP VARCHAR(45);
     IF NOT EXISTS(SELECT Nombre FROM Producto WHERE Codigo_Barras = CodigoB)
@@ -137,11 +139,23 @@ BEGIN
 		THEN
 			SET @RESPUESTA = 'Producto encontrado';
 			SELECT @RESPUESTA AS respuesta;
-			SELECT (Precio_vent * CantidadP) INTO TotalP FROM Producto WHERE Codigo_Barras = CodigoB;
-			SELECT Precio_vent INTO PrecioP FROM Producto WHERE Codigo_Barras = CodigoB;
-			SELECT concat(Nombre," ",Descripcion) INTO Nombre_CompletoP FROM Producto WHERE Codigo_Barras = CodigoB;
-			INSERT INTO CarritoDeCompra(Nombre_Completo, Cantidad, Precio, Total, Id_Aux_Venta) VALUES(Nombre_CompletoP, CantidadP, PrecioP, TotalP, Id_Aux_VentaP);
-            END IF;
+            SELECT Cantidad INTO Aux_Cantidad FROM Producto WHERE Codigo_Barras = CodigoB;
+            
+            IF(CantidadP <= Aux_Cantidad)
+			THEN
+				SET @RESPUESTA = 'Producto suficiente';
+				SELECT @RESPUESTA AS respuesta;
+				SELECT (Precio_vent * CantidadP) INTO TotalP FROM Producto WHERE Codigo_Barras = CodigoB;
+				SELECT Precio_vent INTO PrecioP FROM Producto WHERE Codigo_Barras = CodigoB;
+				SELECT concat(Nombre," ",Descripcion) INTO Nombre_CompletoP FROM Producto WHERE Codigo_Barras = CodigoB;
+				INSERT INTO CarritoDeCompra(Nombre_Completo, Cantidad, Precio, Total, Id_Aux_Venta) VALUES(Nombre_CompletoP, CantidadP, PrecioP, TotalP, Id_Aux_VentaP);
+                
+                UPDATE Producto SET Cantidad=(Aux_Cantidad - CantidadP) WHERE Codigo_Barras = CodigoB;
+			ELSE
+				SET @RESPUESTA = 'No hay suficientes productos';
+				SELECT @RESPUESTA AS respuesta;
+			END IF;
+		END IF;
     END IF;
 END //
 DELIMITER ;
@@ -172,11 +186,13 @@ insert into Proveedor(Nombre, RFC, Telefono, Empresa, Direccion, Estado, Municip
 INSERT INTO Puesto(Nombre)VALUES("Administrador");
 insert into Departamento(Nombre) Values("Salchichoneria"),("Frutas y Verduras"),("Abarrotes"),("Bebidas");
 insert into Producto(Nombre, Descripcion, Precio_prov, Precio_vent, Marca, Cantidad, Codigo_Barras, Id_tienda_FK, Id_departamento_FK, Id_proveedor_FK) Values
-    ("Pepsi","600ml","13","15","Pepsi","10","P01",1,4,1),("Vita","600ml","13","15","Pepsi","5","V01",1,4,1),("Mirinda","1Lt","22","25","Pepsi","8","M02",1,4,1);
+    ("Pepsi","600ml","13","15","Pepsi",10,"P01",1,4,1),("Vita","600ml","13","15","Pepsi",5,"V01",1,4,1),("Mirinda","1Lt","22","25","Pepsi",8,"M02",1,4,1);
 insert into Empleado(Nombre, Apellido_P, Apellido_M, Direccion, Telefono, Usuario, Pass, Id_tienda_FK, Id_puesto_FK)Values("Jair", "Estrada", "Palomino",
  "Marquez de leon", "123456", "Jest", "1234", 1, 1);
 INSERT INTO Login(Id_empleado_FK)VALUES(1);
 INSERT INTO Venta(FechaHora,Total,Cambio,Pago,Cantidad,Id_empleado_FK) VALUES (NOW(),100,0,100,2,1);
+
+
 
 -- SELECT --
 SELECT Nombre, Apellido_P FROM Empleado where Usuario = "Jest" AND Pass = "1234";
@@ -193,5 +209,7 @@ SELECT MAX(Id_venta) FROM Venta;
 SELECT Nombre, Descripcion, Precio_vent FROM Producto WHERE Codigo_Barras = "M02";
 
 -- Llamada al procedimiento!
-CALL Carrito("M02",3,2);
+CALL Carrito("M02",8,2);
 CALL ExtraerId();
+
+-- Id_Departamento, Id_Tienda, Id_Proveedor
