@@ -160,7 +160,7 @@ public class Conexion {
             
         } catch (SQLException ex) {
             
-            JOptionPane.showMessageDialog(null, "Mensaje: " + ex);
+            JOptionPane.showMessageDialog(null, "Error intente de nuevo");
         }
     }
     public DefaultTableModel LimpiarJTable(){
@@ -193,5 +193,33 @@ public class Conexion {
         
         return Dato;
         
+    }
+    public void InsertarEmpleados(String Nombre, String Apellido_P, String Apellido_M, int Telefono, String Puesto, String Direccion, String Usuario, String Contraseña, String Tienda){
+        
+        String Respuesta = "";
+        try {
+            
+            CallableStatement cst = conn.prepareCall("{CALL InsertEmpleado(?, ?, ?, ?, ?, ?, ?, ?, ?)}");
+            cst.setString(1, Nombre);
+            cst.setString(2, Apellido_P);
+            cst.setString(3, Apellido_M);
+            cst.setString(4, Direccion);
+            cst.setInt(5, Telefono);
+            cst.setString(6, Usuario);
+            cst.setString(7, Contraseña);
+            cst.setString(8, Tienda);
+            cst.setString(9, Puesto);
+            rs = cst.executeQuery();
+            
+            while(rs.next()){
+                Respuesta = rs.getString(1).toString();
+            }
+            
+            JOptionPane.showMessageDialog(null, "Mensaje: " + Respuesta);
+            
+        } catch (SQLException ex) {
+            
+            JOptionPane.showMessageDialog(null, "Mensaje: " + ex);
+        }
     }
 }

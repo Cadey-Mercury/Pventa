@@ -23,7 +23,7 @@ public class LogIn extends javax.swing.JFrame {
     public LogIn() {
         initComponents();
         new PlaceHolder(txtUser, "Ingrese su usuario");
-        new PlaceHolder(txtPass, "Ingrese su contraseña");
+        //new PlaceHolder(jPasswordField1, "Ingrese su contraseña");
         this.setLocationRelativeTo(null);
     }
 
@@ -41,10 +41,9 @@ public class LogIn extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         txtUser = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        txtPass = new javax.swing.JTextField();
-        jCheckBox1 = new javax.swing.JCheckBox();
         jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        jBtnRegistrar = new javax.swing.JButton();
+        jPasswordField1 = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(0, 204, 204));
@@ -65,10 +64,6 @@ public class LogIn extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 22)); // NOI18N
         jLabel3.setText("Contraseña");
 
-        jCheckBox1.setBackground(new java.awt.Color(0, 255, 255));
-        jCheckBox1.setForeground(new java.awt.Color(153, 0, 255));
-        jCheckBox1.setText("Recordar contraseña");
-
         jButton1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jButton1.setText("Iniciar Sesion");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -77,8 +72,13 @@ public class LogIn extends javax.swing.JFrame {
             }
         });
 
-        jButton2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jButton2.setText("Registrar usuario");
+        jBtnRegistrar.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jBtnRegistrar.setText("Registrar usuario");
+        jBtnRegistrar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBtnRegistrarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -92,25 +92,19 @@ public class LogIn extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(453, 453, 453)
                         .addComponent(jLabel2))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(txtPass, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                            .addGap(390, 390, 390)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addGap(105, 105, 105)
-                                    .addComponent(jLabel3))
-                                .addComponent(txtUser, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(498, 498, 498)
-                        .addComponent(jCheckBox1))
+                        .addGap(390, 390, 390)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(105, 105, 105)
+                                .addComponent(jLabel3))
+                            .addComponent(txtUser, javax.swing.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE)
+                            .addComponent(jPasswordField1)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(489, 489, 489)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 148, Short.MAX_VALUE))))
+                            .addComponent(jBtnRegistrar, javax.swing.GroupLayout.DEFAULT_SIZE, 148, Short.MAX_VALUE))))
                 .addContainerGap(320, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -124,14 +118,12 @@ public class LogIn extends javax.swing.JFrame {
                 .addComponent(txtUser, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(38, 38, 38)
                 .addComponent(jLabel3)
-                .addGap(18, 18, 18)
-                .addComponent(txtPass, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jCheckBox1)
-                .addGap(31, 31, 31)
+                .addGap(45, 45, 45)
+                .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(47, 47, 47)
                 .addComponent(jButton1)
                 .addGap(29, 29, 29)
-                .addComponent(jButton2)
+                .addComponent(jBtnRegistrar)
                 .addContainerGap(218, Short.MAX_VALUE))
         );
 
@@ -152,7 +144,7 @@ public class LogIn extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         //Conexion a la bd y respuesta del login
         Usuario = txtUser.getText();
-        Contraseña = txtPass.getText();
+        Contraseña = jPasswordField1.getText();
         
         try {
             
@@ -168,6 +160,11 @@ public class LogIn extends javax.swing.JFrame {
             Logger.getLogger(LogIn.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jBtnRegistrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnRegistrarActionPerformed
+        this.setVisible(false);
+        new AdminUsuario().setVisible(true);
+    }//GEN-LAST:event_jBtnRegistrarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -205,14 +202,13 @@ public class LogIn extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jBtnRegistrar;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JTextField txtPass;
+    private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JTextField txtUser;
     // End of variables declaration//GEN-END:variables
 }

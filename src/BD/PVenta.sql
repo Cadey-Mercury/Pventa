@@ -36,8 +36,8 @@ CREATE TABLE Producto(
     Id_producto INT PRIMARY KEY AUTO_INCREMENT,
     Nombre VARCHAR(45) NOT NULL,
     Descripcion VARCHAR(45) NOT NULL,
-    Precio_prov VARCHAR(45) NOT NULL,
-    Precio_vent VARCHAR(45) NOT NULL,
+    Precio_prov INT NOT NULL,
+    Precio_vent INT NOT NULL,
     Marca VARCHAR(45) NOT NULL,
     Cantidad INT NOT NULL,
     Codigo_Barras VARCHAR(45) NOT NULL,
@@ -78,7 +78,6 @@ CREATE TABLE Venta(
     Cambio VARCHAR(45) NOT NULL,
     Pago INT NOT NULL,
     Cantidad INT NOT NULL,
-    Imagen VARCHAR(45),
     Id_empleado_FK INT,
     FOREIGN KEY (Id_empleado_FK) REFERENCES Empleado(Id_empleado)
 )ENGINE = INNODB;
@@ -95,6 +94,7 @@ CREATE TABLE CarritoDeCompra(
 
 CREATE TABLE Compra(
     Id_compra INT PRIMARY KEY AUTO_INCREMENT,
+    Folio INT NOT NULL,
     Cantidad INT NOT NULL,
     Id_producto_FK INT,
     FOREIGN KEY (Id_producto_FK) REFERENCES Producto(Id_producto)
@@ -165,7 +165,7 @@ DELIMITER //
 CREATE PROCEDURE ExtraerId()
 BEGIN
     DECLARE AUX INT;
-     IF NOT EXISTS(SELECT MAX(Id_venta) FROM Venta )
+     IF NOT EXISTS(SELECT Id_venta FROM Venta )
     THEN
         SET @RESPUESTA = '0';
         SELECT @RESPUESTA AS respuesta;
@@ -180,17 +180,73 @@ BEGIN
 END //
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS InsertProducto;
+DELIMITER // 
+CREATE PROCEDURE InsertProducto( IN NombreP VARCHAR(45), IN DescripcionP VARCHAR(45), IN Precio_provP INT, IN Precio_ventP INT, IN MarcaP VARCHAR(45), IN CantidadP INT, IN Codigo_BarrasP VARCHAR(45), IN Id_tienda_FKP INT, IN NombreDepartamento VARCHAR(45), IN NombreProveedor VARCHAR(45))
+BEGIN
+    DECLARE AuxIdDep INT;
+    DECLARE AuxIdProv INT;
+
+    IF NOT EXISTS(SELECT Nombre FROM Departamento WHERE Nombre = NombreDepartamento)
+    THEN
+        SET @RESPUESTA = 'El departamento no existe';
+        SELECT @RESPUESTA AS respuesta;
+    ELSE IF NOT EXISTS(SELECT Nombre FROM Proveedor WHERE Nombre = NombreProveedor)
+        THEN
+            SET @RESPUESTA = 'El proveedor no existe';
+            SELECT @RESPUESTA AS respuesta;
+            ELSE IF EXISTS(SELECT Nombre FROM Proveedor WHERE Nombre = NombreProveedor)
+                THEN
+                    SELECT Id_departamento INTO AuxIdDep FROM Departamento WHERE Nombre = NombreDepartamento;
+                    SELECT Id_proveedor INTO AuxIdProv FROM Proveedor WHERE Nombre = NombreProveedor;
+                    INSERT INTO Producto(Nombre, Descripcion, Precio_prov, Precio_vent, Marca, Cantidad, Codigo_Barras, Id_tienda_FK, Id_departamento_FK, Id_proveedor_FK) 
+                    Values (NombreP, DescripcionP, Precio_provP,Precio_ventP, MarcaP, CantidadP, Codigo_BarrasP, Id_tienda_FKP, AuxIdDep, AuxIdProv);
+            END IF;
+        END IF;
+    END IF;
+END //
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS InsertEmpleado;
+DELIMITER // 
+CREATE PROCEDURE InsertEmpleado( IN NombreP VARCHAR(45), IN Apellido_PP VARCHAR(45), IN Apellido_MP VARCHAR(45), IN DireccionP VARCHAR(45), IN TelefonoP INT, IN UsuarioP VARCHAR(45), IN PassP VARCHAR(45), IN TiendaP VARCHAR(45), IN PuestoP VARCHAR(45))
+BEGIN
+    DECLARE AuxIdTienda INT;
+    DECLARE AuxIdPuesto INT;
+
+    IF NOT EXISTS(SELECT Nombre FROM Tienda WHERE Nombre = TiendaP)
+    THEN
+        SET @RESPUESTA = 'La tienda no existe';
+        SELECT @RESPUESTA AS respuesta;
+    ELSE IF NOT EXISTS(SELECT Nombre FROM Puesto WHERE Nombre = PuestoP)
+        THEN
+            SET @RESPUESTA = 'El Puesto no existe';
+            SELECT @RESPUESTA AS respuesta;
+            ELSE IF EXISTS(SELECT Nombre FROM Puesto WHERE Nombre = PuestoP)
+                THEN
+                    SELECT Id_tienda INTO AuxIdTienda FROM Tienda WHERE Nombre = TiendaP;
+                    SELECT Id_puesto INTO AuxIdPuesto FROM Puesto WHERE Nombre = PuestoP;
+                    INSERT INTO Empleado(Nombre, Apellido_P, Apellido_M, Direccion, Telefono, Usuario, Pass, Id_tienda_FK, Id_puesto_FK)
+                        VALUES(NombreP, Apellido_PP, Apellido_MP, DireccionP, TelefonoP, UsuarioP, PassP, AuxIdTienda, AuxIdPuesto);
+                    SET @RESPUESTA = 'Registro Completado';
+                    SELECT @RESPUESTA AS respuesta;
+            END IF;
+        END IF;
+    END IF;
+END //
+DELIMITER ;
+
 -- INSERT-- 
 insert into Tienda(Nombre, Direccion, RFC, Ciudad, Telefono)Values("LG", "Forjadores", "abcde", "La paz", "1234567");
 insert into Proveedor(Nombre, RFC, Telefono, Empresa, Direccion, Estado, Municipio) Values ("Rodolfo", "R6969", "111111", "Pepsico", "Cardonal", "B.C.S.", "La paz");
 INSERT INTO Puesto(Nombre)VALUES("Administrador");
 insert into Departamento(Nombre) Values("Salchichoneria"),("Frutas y Verduras"),("Abarrotes"),("Bebidas");
 insert into Producto(Nombre, Descripcion, Precio_prov, Precio_vent, Marca, Cantidad, Codigo_Barras, Id_tienda_FK, Id_departamento_FK, Id_proveedor_FK) Values
-    ("Pepsi","600ml","13","15","Pepsi",10,"P01",1,4,1),("Vita","600ml","13","15","Pepsi",5,"V01",1,4,1),("Mirinda","1Lt","22","25","Pepsi",8,"M02",1,4,1);
+    ("Pepsi","600ml",13 ,15, "Pepsi",10,"P01",1,4,1),("Vita","600ml", 13, 15,"Pepsi",5,"V01",1,4,1),("Mirinda","1Lt", 22, 25,"Pepsi",8,"M02",1,4,1);
 insert into Empleado(Nombre, Apellido_P, Apellido_M, Direccion, Telefono, Usuario, Pass, Id_tienda_FK, Id_puesto_FK)Values("Jair", "Estrada", "Palomino",
  "Marquez de leon", "123456", "Jest", "1234", 1, 1);
 INSERT INTO Login(Id_empleado_FK)VALUES(1);
-INSERT INTO Venta(FechaHora,Total,Cambio,Pago,Cantidad,Id_empleado_FK) VALUES (NOW(),100,0,100,2,1);
+-- INSERT INTO Venta(FechaHora,Total,Cambio,Pago,Cantidad,Id_empleado_FK) VALUES (NOW(),100,0,100,2,1);
 
 
 
@@ -202,6 +258,7 @@ SELECT * FROM Departamento;
 SELECT * FROM Producto;
 SELECT * FROM Puesto;
 SELECT * FROM Empleado;
+SELECT * FROM Compra;
 SELECT * FROM Login;
 SELECT * FROM Venta;
 SELECT * FROM CarritoDeCompra;
@@ -211,5 +268,5 @@ SELECT Nombre, Descripcion, Precio_vent FROM Producto WHERE Codigo_Barras = "M02
 -- Llamada al procedimiento!
 CALL Carrito("M02",8,2);
 CALL ExtraerId();
-
+CALL InsertProducto("Pepsi Ligth", "600ml", 13, 15, "Pepsi", 12, "PL01", 1, "Bebidas", "Rodolfo");
 -- Id_Departamento, Id_Tienda, Id_Proveedor
