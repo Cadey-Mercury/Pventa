@@ -105,7 +105,7 @@ public class Main extends javax.swing.JFrame {
         jtProducto.setForeground(new java.awt.Color(153, 0, 0));
         jtProducto.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null}
+
             },
             new String [] {
                 "Producto", "Cantidad", "Precio", "Total"

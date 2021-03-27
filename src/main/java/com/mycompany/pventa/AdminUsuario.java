@@ -23,7 +23,7 @@ public class AdminUsuario extends javax.swing.JFrame {
     public AdminUsuario() {
         initComponents();
         this.setLocationRelativeTo(null);
-        String Empresa = "<html><body>Abarrotes Garcia S.A.de C.V. <br> Río grande e/ Río tigris #820 <br> Col. Lagunitas </body></html>";
+        String Empresa = "<html><body><b>Abarrotes Garcia S.A.de C.V. <br> Río grande e/ Río tigris #820 <br> Col. Lagunitas </b></body></html>";
         jLabel10.setText(Empresa);
         try{
             
@@ -111,7 +111,7 @@ public class AdminUsuario extends javax.swing.JFrame {
 
         jButton3.setText("Eliminar");
 
-        jLabel10.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        jLabel10.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);

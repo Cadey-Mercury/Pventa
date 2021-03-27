@@ -14,6 +14,7 @@ import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 
@@ -109,6 +110,9 @@ public class Conexion {
             if(Respuesta.equals("El producto no existe")){
                 JOptionPane.showMessageDialog(null, Respuesta);
             }
+            if(Respuesta.equals("No hay suficientes productos")){
+                JOptionPane.showMessageDialog(null, Respuesta);
+            }
             
             
             stmt = conn.createStatement();
@@ -139,7 +143,7 @@ public class Conexion {
             
         } catch (SQLException ex) {
             
-            JOptionPane.showMessageDialog(null, "Mensaje: " + ex);
+            JOptionPane.showMessageDialog(null, "No hay productos agregados todavia");
         }
         
         return modelo;
@@ -163,16 +167,18 @@ public class Conexion {
             JOptionPane.showMessageDialog(null, "Error intente de nuevo");
         }
     }
+    
     public DefaultTableModel LimpiarJTable(){
         DefaultTableModel modelo = new DefaultTableModel();
         modelo.addColumn("Nombre");
         modelo.addColumn("Cantidad");
         modelo.addColumn("Precio");
         modelo.addColumn("Total");
-        modelo.setRowCount(1);
+        modelo.setRowCount(0);
         
        return modelo; 
     }
+    
     public String ExtraerDepartamento(){
         
         String Dato = null;
@@ -194,6 +200,7 @@ public class Conexion {
         return Dato;
         
     }
+    
     public void InsertarEmpleados(String Nombre, String Apellido_P, String Apellido_M, int Telefono, String Puesto, String Direccion, String Usuario, String Contraseña, String Tienda){
         
         String Respuesta = "";
@@ -220,6 +227,118 @@ public class Conexion {
         } catch (SQLException ex) {
             
             JOptionPane.showMessageDialog(null, "Mensaje: " + ex);
+        }
+    }
+    
+    public void InsertarProveedor(String Proveedor, String Rfc, String Tel, String Empresa, String Direccion, String Estado, String Municipio){
+        
+        try {
+            
+            ps = conn.prepareStatement("INSERT INTO Proveedor(Nombre, RFC, Telefono, Empresa, Direccion, Estado, Municipio)VALUES(?, ?, ?, ?, ?, ?, ?)");
+            ps.setString(1, Proveedor);  
+            ps.setString(2, Rfc);  
+            ps.setString(3, Tel);  
+            ps.setString(4, Empresa);
+            ps.setString(5, Direccion);
+            ps.setString(6, Estado);
+            ps.setString(7, Municipio);
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Registro completado!");
+            
+        } catch (SQLException ex) {
+            
+            JOptionPane.showMessageDialog(null, "Error intente de nuevo" + ex);
+        }
+    }
+    
+    public String[] BuscarPorProveedor(String Proveedor){
+        
+        String[] txt = new String[6];
+        
+        try{
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(  "SELECT RFC, Telefono, Empresa, Direccion, Estado, Municipio FROM Proveedor WHERE Nombre ='" + Proveedor + "'");
+            rs.next();
+            
+            do{
+                for(int i = 0; i < 6; i++){
+                    txt[i] = rs.getString(i + 1);
+                }
+                
+            }while(rs.next());
+            
+        }catch(SQLException ex){
+            JOptionPane.showMessageDialog(null, "Error intente nuevamente!");
+        }
+        
+        return txt;
+    }
+    
+    public String[] BuscarPorRfc(String Rfc){
+        
+        String[] txt = new String[6];
+        
+        try{
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT Nombre, Telefono, Empresa, Direccion, Estado, Municipio FROM Proveedor WHERE RFC ='" + Rfc + "'" );
+            rs.next();
+            
+            do{
+                for(int i = 0; i < 6; i++){
+                    txt[i] = rs.getString(i + 1);
+                }
+                
+            }while(rs.next());
+            
+        }catch(SQLException ex){
+            
+            JOptionPane.showMessageDialog(null, "Error intente nuevamente!");
+            
+        }
+        
+        return txt;
+    }
+    
+    public void ActualizarPorProveedorAndRfc(String Nombre, String Rfc, String Tel, String Empresa, String Direccion, String Estado, String Municipio, boolean FlagProveedor, boolean FlagRfc){
+        
+        try{
+           
+           if(FlagProveedor){
+               
+               ps = conn.prepareStatement("UPDATE Proveedor SET RFC=?, Telefono=?, Empresa=?, Direccion=?, Estado=?, Municipio=? WHERE Nombre = ?");
+               ps.setString(1, Rfc);
+               ps.setString(2, Tel);
+               ps.setString(3, Empresa);
+               ps.setString(4, Direccion);
+               ps.setString(5, Estado);
+               ps.setString(6, Municipio);
+               ps.setString(7, Nombre);
+               ps.executeUpdate();
+               JOptionPane.showMessageDialog(null, "Se ha actualizado correctamente!");
+               
+           }else{
+               
+               if(FlagRfc){
+                   
+                   ps = conn.prepareStatement("UPDATE Proveedor SET Nombre=?, Telefono=?, Empresa=?, Direccion=?, Estado=?, Municipio=? WHERE RFC = ?");
+                   ps.setString(1, Nombre);
+                   ps.setString(2, Tel);
+                   ps.setString(3, Empresa);
+                   ps.setString(4, Direccion);
+                   ps.setString(5, Estado);
+                   ps.setString(6, Municipio);
+                   ps.setString(7, Rfc);
+                   ps.executeUpdate();
+                   JOptionPane.showMessageDialog(null, "Se ha actualizado correctamente!");
+                   
+               }else{
+                   JOptionPane.showMessageDialog(null, "Le faltan datos!");
+               }
+           }
+        }catch(SQLException ex){
+            
+            JOptionPane.showMessageDialog(null, "Error intente nuevamente!");
+            
         }
     }
 }
