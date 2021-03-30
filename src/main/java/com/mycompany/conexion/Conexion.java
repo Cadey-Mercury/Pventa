@@ -204,6 +204,7 @@ public class Conexion {
     public void InsertarEmpleados(String Nombre, String Apellido_P, String Apellido_M, int Telefono, String Puesto, String Direccion, String Usuario, String Contraseña, String Tienda){
         
         String Respuesta = "";
+        
         try {
             
             CallableStatement cst = conn.prepareCall("{CALL InsertEmpleado(?, ?, ?, ?, ?, ?, ?, ?, ?)}");
@@ -219,7 +220,9 @@ public class Conexion {
             rs = cst.executeQuery();
             
             while(rs.next()){
+                
                 Respuesta = rs.getString(1).toString();
+                
             }
             
             JOptionPane.showMessageDialog(null, "Mensaje: " + Respuesta);
@@ -228,6 +231,66 @@ public class Conexion {
             
             JOptionPane.showMessageDialog(null, "Mensaje: " + ex);
         }
+    }
+    
+    public String[] BuscarEmpleadoNombre(String Nombre){
+        
+        String[] txt = new String[8];
+        
+        try{
+            
+            stmt = conn.createStatement();
+            
+            rs = stmt.executeQuery("SELECT Apellido_P, Apellido_M, Direccion, Telefono, Usuario, pass, Nombre_Tienda, Nombre_Puesto FROM V_Empleados WHERE Nombre ='" + Nombre + "'");
+            
+            rs.next();
+            
+            do{
+                
+                for(int i = 0; i < 8; i++){
+                    
+                    txt[i] = rs.getString(i + 1);
+                    
+                }
+                
+            }while(rs.next());
+            
+        }catch(SQLException ex){
+            
+            JOptionPane.showMessageDialog(null, "Error intente nuevamente!" + ex);
+        }
+        
+        return txt;
+    }
+    
+    public String[] BuscarEmpleadoUsuario(String Usuario){
+        
+        String[] txt = new String[8];
+        
+        try{
+            
+            stmt = conn.createStatement();
+            
+            rs = stmt.executeQuery("SELECT Nombre, Apellido_P, Apellido_M, Direccion, Telefono, pass,Nombre_Tienda, Nombre_Puesto FROM V_Empleados WHERE Usuario ='" + Usuario + "'");
+            
+            rs.next();
+            
+            do{
+                
+                for(int i = 0; i < 8; i++){
+                    
+                    txt[i] = rs.getString(i + 1);
+                    
+                }
+                
+            }while(rs.next());
+            
+        }catch(SQLException ex){
+            
+            JOptionPane.showMessageDialog(null, "Error intente nuevamente!");
+        }
+        
+        return txt;
     }
     
     public void InsertarProveedor(String Proveedor, String Rfc, String Tel, String Empresa, String Direccion, String Estado, String Municipio){
@@ -257,7 +320,7 @@ public class Conexion {
         
         try{
             stmt = conn.createStatement();
-            rs = stmt.executeQuery(  "SELECT RFC, Telefono, Empresa, Direccion, Estado, Municipio FROM Proveedor WHERE Nombre ='" + Proveedor + "'");
+            rs = stmt.executeQuery("SELECT RFC, Telefono, Empresa, Direccion, Estado, Municipio FROM Proveedor WHERE Nombre ='" + Proveedor + "'");
             rs.next();
             
             do{
@@ -341,4 +404,123 @@ public class Conexion {
             
         }
     }
+    
+    public DefaultTableModel BuscarDepartamento(){
+        
+        DefaultTableModel modelo = new DefaultTableModel();
+        String Respuesta = "";
+        
+        try {
+            
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT Nombre FROM Departamento");
+            rs.next();
+            
+            ResultSetMetaData rsMd = rs.getMetaData();
+            int cantidadColumnas = rsMd.getColumnCount();
+            
+            modelo.addColumn("Nombre");
+        
+        
+            do{
+                Object[] filas = new Object[cantidadColumnas];
+                
+                for(int i = 0; i < cantidadColumnas; i++){
+                    
+                    filas[i] = rs.getObject(i + 1);
+                    
+                }
+                
+                modelo.addRow(filas);
+                
+            }while(rs.next());
+            
+        } catch (SQLException ex) {
+            
+            JOptionPane.showMessageDialog(null, "No hay departamento" + ex);
+        }
+        
+        return modelo;
+    }
+    
+    public void ActualziarDepartamento(String Actual, String Nuevo){
+        
+        try{
+            
+            ps = conn.prepareStatement("UPDATE Departamento SET Nombre=? WHERE Nombre=?");
+            ps.setString(1, Nuevo);
+            ps.setString(2, Actual);
+               
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Se ha actualizado correctamente!");
+            
+        }catch(SQLException ex){
+            
+            JOptionPane.showMessageDialog(null, "Error intente nuevamente!");
+            
+        }
+    }
+    
+    public void ActualizarEmpleadoPorNombreAndUsuario(String Nombre, String Apellido_P, String Apellido_M, int Telefono, String Puesto, String Direccion, String Usuario, String Contraseña, String Tienda, boolean FlagNombre, boolean FlagUsuario){
+        
+        String Respuesta = "";
+        
+        try {
+            
+            if(FlagNombre){
+                CallableStatement cst = conn.prepareCall("{CALL ActualizarUsuarioNombre(?, ?, ?, ?, ?, ?, ?, ?, ?)}");
+                cst.setString(1, Nombre);
+                cst.setString(2, Apellido_P);
+                cst.setString(3, Apellido_M);
+                cst.setString(4, Direccion);
+                cst.setInt(5, Telefono);
+                cst.setString(6, Usuario);
+                cst.setString(7, Contraseña);
+                cst.setString(8, Tienda);
+                cst.setString(9, Puesto);
+                rs = cst.executeQuery();
+            
+                while(rs.next()){
+                
+                    Respuesta = rs.getString(1).toString();
+                
+                }
+            
+                JOptionPane.showMessageDialog(null, "Mensaje: " + Respuesta);
+                
+            }else{
+                
+                if(FlagUsuario){
+                    
+                    CallableStatement cst = conn.prepareCall("{CALL ActualizarUsuario(?, ?, ?, ?, ?, ?, ?, ?, ?)}");
+                    cst.setString(1, Nombre);
+                    cst.setString(2, Apellido_P);
+                    cst.setString(3, Apellido_M);
+                    cst.setString(4, Direccion);
+                    cst.setInt(5, Telefono);
+                    cst.setString(6, Usuario);
+                    cst.setString(7, Contraseña);
+                    cst.setString(8, Tienda);
+                    cst.setString(9, Puesto);
+                    rs = cst.executeQuery();
+            
+                    while(rs.next()){
+                
+                        Respuesta = rs.getString(1).toString();
+                
+                    }
+            
+                    JOptionPane.showMessageDialog(null, "Mensaje: " + Respuesta);
+                    
+                }else{
+                    JOptionPane.showMessageDialog(null, "Le faltan datos!");
+                }
+            }
+            
+        } catch (SQLException ex) {
+            
+            JOptionPane.showMessageDialog(null, "Mensaje: " + ex);
+        }
+    }
+    
 }

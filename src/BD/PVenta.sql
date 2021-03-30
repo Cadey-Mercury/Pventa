@@ -235,6 +235,70 @@ BEGIN
 END //
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS ActualizarUsuario;
+DELIMITER // 
+CREATE PROCEDURE ActualizarUsuario( IN NombreP VARCHAR(45), IN Apellido_PP VARCHAR(45), IN Apellido_MP VARCHAR(45), IN DireccionP VARCHAR(45), IN TelefonoP INT, IN UsuarioP VARCHAR(45), IN PassP VARCHAR(45), IN TiendaP VARCHAR(45), IN PuestoP VARCHAR(45))
+BEGIN
+    DECLARE AuxIdTienda INT;
+    DECLARE AuxIdPuesto INT;
+
+    IF NOT EXISTS(SELECT Nombre FROM Tienda WHERE Nombre = TiendaP)
+    THEN
+        SET @RESPUESTA = 'La tienda no existe';
+        SELECT @RESPUESTA AS respuesta;
+    ELSE IF NOT EXISTS(SELECT Nombre FROM Puesto WHERE Nombre = PuestoP)
+        THEN
+            SET @RESPUESTA = 'El Puesto no existe';
+            SELECT @RESPUESTA AS respuesta;
+            ELSE IF EXISTS(SELECT Nombre FROM Puesto WHERE Nombre = PuestoP)
+                THEN
+                    SELECT Id_tienda INTO AuxIdTienda FROM Tienda WHERE Nombre = TiendaP;
+                    SELECT Id_puesto INTO AuxIdPuesto FROM Puesto WHERE Nombre = PuestoP;
+                    UPDATE Empleado SET Nombre = NombreP, Apellido_P = Apellido_PP, Apellido_M = Apellido_MP, Direccion = DireccionP, Telefono = TelefonoP, Pass = PassP, Id_tienda_FK = AuxIdTienda, Id_puesto_FK = AuxIdPuesto WHERE Usuario = UsuarioP;
+                    SET @RESPUESTA = 'Actualizacon Completada';
+                    SELECT @RESPUESTA AS respuesta;
+            END IF;
+        END IF;
+    END IF;
+END //
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS ActualizarUsuarioNombre;
+DELIMITER // 
+CREATE PROCEDURE ActualizarUsuarioNombre( IN NombreP VARCHAR(45), IN Apellido_PP VARCHAR(45), IN Apellido_MP VARCHAR(45), IN DireccionP VARCHAR(45), IN TelefonoP INT, IN UsuarioP VARCHAR(45), IN PassP VARCHAR(45), IN TiendaP VARCHAR(45), IN PuestoP VARCHAR(45))
+BEGIN
+    DECLARE AuxIdTienda INT;
+    DECLARE AuxIdPuesto INT;
+
+    IF NOT EXISTS(SELECT Nombre FROM Tienda WHERE Nombre = TiendaP)
+    THEN
+        SET @RESPUESTA = 'La tienda no existe';
+        SELECT @RESPUESTA AS respuesta;
+    ELSE IF NOT EXISTS(SELECT Nombre FROM Puesto WHERE Nombre = PuestoP)
+        THEN
+            SET @RESPUESTA = 'El Puesto no existe';
+            SELECT @RESPUESTA AS respuesta;
+            ELSE IF EXISTS(SELECT Nombre FROM Puesto WHERE Nombre = PuestoP)
+                THEN
+                    SELECT Id_tienda INTO AuxIdTienda FROM Tienda WHERE Nombre = TiendaP;
+                    SELECT Id_puesto INTO AuxIdPuesto FROM Puesto WHERE Nombre = PuestoP;
+                    UPDATE Empleado SET Apellido_P = Apellido_PP, Apellido_M = Apellido_MP, Direccion = DireccionP, Telefono = TelefonoP, Usuario = UsuarioP, Pass = PassP, Id_tienda_FK = AuxIdTienda, Id_puesto_FK = AuxIdPuesto WHERE Nombre = NombreP;
+                    SET @RESPUESTA = 'Actualizacon Completada';
+                    SELECT @RESPUESTA AS respuesta;
+            END IF;
+        END IF;
+    END IF;
+END //
+DELIMITER ;
+
+
+-- Vistas
+DROP VIEW  IF EXISTS V_Empleados;
+CREATE VIEW V_Empleados AS SELECT Empleado.Nombre, Empleado.Apellido_P, Empleado.Apellido_M, Empleado.Direccion, Empleado.Telefono, Empleado.Usuario, Empleado.Pass, Puesto.Nombre AS Nombre_Puesto, Tienda.Nombre AS Nombre_Tienda FROM Empleado
+LEFT JOIN Tienda ON Tienda.Id_tienda = Empleado.Id_tienda_FK
+LEFT JOIN Puesto ON Puesto.Id_puesto = Empleado.Id_puesto_FK;
+
 -- INSERT-- 
 insert into Tienda(Nombre, Direccion, RFC, Ciudad, Telefono)Values("LG", "Forjadores", "abcde", "La paz", "1234567");
 insert into Proveedor(Nombre, RFC, Telefono, Empresa, Direccion, Estado, Municipio) Values ("Rodolfo", "R6969", "111111", "Pepsico", "Cardonal", "B.C.S.", "La paz");
@@ -263,9 +327,11 @@ SELECT * FROM Venta;
 SELECT * FROM CarritoDeCompra;
 SELECT MAX(Id_venta) FROM Venta;
 SELECT Nombre, Descripcion, Precio_vent FROM Producto WHERE Codigo_Barras = "M02";
+SELECT * FROM V_Empleados where Nombre = 'Jair Isaac';
 
 -- Llamada al procedimiento!
 CALL Carrito("M02",9,1);
 CALL ExtraerId();
 CALL InsertProducto("Pepsi Ligth", "600ml", 13, 15, "Pepsi", 12, "PL01", 1, "Bebidas", "Rodolfo");
 -- Id_Departamento, Id_Tienda, Id_Proveedor
+
