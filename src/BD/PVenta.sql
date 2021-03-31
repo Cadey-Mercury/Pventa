@@ -181,7 +181,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS InsertProducto;
 DELIMITER // 
-CREATE PROCEDURE InsertProducto( IN NombreP VARCHAR(45), IN DescripcionP VARCHAR(45), IN Precio_provP INT, IN Precio_ventP INT, IN MarcaP VARCHAR(45), IN CantidadP INT, IN Codigo_BarrasP VARCHAR(45), IN Id_tienda_FKP INT, IN NombreDepartamento VARCHAR(45), IN NombreProveedor VARCHAR(45))
+CREATE PROCEDURE InsertProducto( IN NombreP VARCHAR(45), IN DescripcionP VARCHAR(45), IN Precio_provP INT, IN Precio_ventP INT, IN MarcaP VARCHAR(45), IN CantidadP INT, IN Codigo_BarrasP VARCHAR(45), IN Id_tienda_FKP INT, IN NombreDepartamento VARCHAR(45), IN EmpresaP VARCHAR(45))
 BEGIN
     DECLARE AuxIdDep INT;
     DECLARE AuxIdProv INT;
@@ -190,14 +190,16 @@ BEGIN
     THEN
         SET @RESPUESTA = 'El departamento no existe';
         SELECT @RESPUESTA AS respuesta;
-    ELSE IF NOT EXISTS(SELECT Nombre FROM Proveedor WHERE Nombre = NombreProveedor)
+    ELSE IF NOT EXISTS(SELECT Empresa FROM Proveedor WHERE EmpresaP = EmpresaP)
         THEN
-            SET @RESPUESTA = 'El proveedor no existe';
+            SET @RESPUESTA = 'La empresa no existe';
             SELECT @RESPUESTA AS respuesta;
-            ELSE IF EXISTS(SELECT Nombre FROM Proveedor WHERE Nombre = NombreProveedor)
+            ELSE IF EXISTS(SELECT Empresa FROM Proveedor WHERE Empresa = EmpresaP)
                 THEN
+					SET @RESPUESTA = 'Producto encontrado';
+					SELECT @RESPUESTA AS respuesta;
                     SELECT Id_departamento INTO AuxIdDep FROM Departamento WHERE Nombre = NombreDepartamento;
-                    SELECT Id_proveedor INTO AuxIdProv FROM Proveedor WHERE Nombre = NombreProveedor;
+                    SELECT Id_proveedor INTO AuxIdProv FROM Proveedor WHERE Empresa = EmpresaP;
                     INSERT INTO Producto(Nombre, Descripcion, Precio_prov, Precio_vent, Marca, Cantidad, Codigo_Barras, Id_tienda_FK, Id_departamento_FK, Id_proveedor_FK) 
                     Values (NombreP, DescripcionP, Precio_provP,Precio_ventP, MarcaP, CantidadP, Codigo_BarrasP, Id_tienda_FKP, AuxIdDep, AuxIdProv);
             END IF;
@@ -332,6 +334,7 @@ SELECT * FROM V_Empleados where Nombre = 'Jair Isaac';
 -- Llamada al procedimiento!
 CALL Carrito("M02",9,1);
 CALL ExtraerId();
-CALL InsertProducto("Pepsi Ligth", "600ml", 13, 15, "Pepsi", 12, "PL01", 1, "Bebidas", "Rodolfo");
+CALL InsertProducto("CascaNuces", "1lt", 20, 24, "Chata", 4, "HDR", 1, "Abarrotes", "Coca Cola");
 -- Id_Departamento, Id_Tienda, Id_Proveedor
 
+Delete from Producto where Id_producto = 6;

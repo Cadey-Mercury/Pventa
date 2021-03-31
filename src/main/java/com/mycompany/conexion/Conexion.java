@@ -34,6 +34,7 @@ public class Conexion {
     public static String Id_Tienda = "";
     public static String Id_Proveedor = "";
     
+    
     public Conexion() throws SQLException{
         
         //Conexion a la BD
@@ -516,6 +517,136 @@ public class Conexion {
                     JOptionPane.showMessageDialog(null, "Le faltan datos!");
                 }
             }
+            
+        } catch (SQLException ex) {
+            
+            JOptionPane.showMessageDialog(null, "Mensaje: " + ex);
+        }
+    }
+    
+    public String[] SelectDepartamentos(int Tamaño){
+        
+        
+        String[] txt = new String[Tamaño]; 
+        
+        try{
+            
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT Nombre FROM Departamento");
+            rs.next();
+            int contador = 0;
+            do{
+                
+                txt[contador] = rs.getString("Nombre");
+                contador++;
+                
+            }while(rs.next());
+            
+        }catch(SQLException ex){
+            
+            JOptionPane.showMessageDialog(null, "Error intente nuevamente!" + ex);
+             
+        }
+         return txt;
+    }
+    
+    public int TamañoDepartamento(){
+        
+        int contador = 0;
+        
+        try{
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT Nombre FROM Departamento");
+            rs.next();
+            
+            do{
+                
+                contador++;
+                
+            }while(rs.next());
+            
+        }catch(SQLException ex){
+            
+            JOptionPane.showMessageDialog(null, "Error intente nuevamente!" + ex);
+             
+        }
+         return contador;
+    }
+    
+    public int TamañoProveedor(){
+        
+        int contador = 0;
+        
+        try{
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT Empresa FROM Proveedor");
+            rs.next();
+            
+            do{
+                
+                contador++;
+            }while(rs.next());
+            
+        }catch(SQLException ex){
+            
+            JOptionPane.showMessageDialog(null, "Error intente nuevamente!" + ex);
+             
+        }
+         return contador;
+    }
+    
+    public String[] SelectProveedores(int Tamaño){
+        
+        
+        String[] txt = new String[Tamaño]; 
+        
+        try{
+            
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT Empresa FROM Proveedor");
+            rs.next();
+            int contador = 0;
+            do{
+                
+                txt[contador] = rs.getString("Empresa");
+                contador++;
+                
+            }while(rs.next());
+            
+        }catch(SQLException ex){
+            
+            JOptionPane.showMessageDialog(null, "Error intente nuevamente!" + ex);
+             
+        }
+         return txt;
+    }
+    
+    public void InsertarProductos(String Nombre, String Descripcion, String Marca, String CodigoBarras, String Departamento, String Proveedor, int Precio_Prove, int Precio_Venta, int Cantidad, int Tienda){
+        
+        String Respuesta = "";
+        
+        try {
+            
+            CallableStatement cst = conn.prepareCall("{CALL InsertProducto(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
+            cst.setString(1, Nombre);
+            cst.setString(2, Descripcion);
+            cst.setInt(3, Precio_Prove);
+            cst.setInt(4, Precio_Venta);
+            cst.setString(5, Marca);
+            cst.setInt(6, Cantidad);
+            cst.setString(7, CodigoBarras);
+            cst.setInt(8, Tienda);
+            cst.setString(9, Departamento);
+            cst.setString(10, Proveedor);
+            rs = cst.executeQuery();
+            
+            while(rs.next()){
+                
+                Respuesta = rs.getString(1).toString();
+                
+            }
+            
+            JOptionPane.showMessageDialog(null, "Se ha registrado un producto");
             
         } catch (SQLException ex) {
             
