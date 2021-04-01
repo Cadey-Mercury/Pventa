@@ -294,12 +294,98 @@ BEGIN
 END //
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS UpdateProductoPorNombre;
+DELIMITER // 
+CREATE PROCEDURE UpdateProductoPorNombre( IN NombreP VARCHAR(45), IN DescripcionP VARCHAR(45), IN Precio_provP INT, IN Precio_ventP INT, IN MarcaP VARCHAR(45), IN CantidadP INT, IN Codigo_BarrasP VARCHAR(45), IN NombreDepartamento VARCHAR(45), IN EmpresaP VARCHAR(45))
+BEGIN
+    DECLARE AuxIdDep INT;
+    DECLARE AuxIdProv INT;
+
+    IF NOT EXISTS(SELECT Nombre FROM Departamento WHERE Nombre = NombreDepartamento)
+    THEN
+        SET @RESPUESTA = 'El departamento no existe';
+        SELECT @RESPUESTA AS respuesta;
+    ELSE IF NOT EXISTS(SELECT Empresa FROM Proveedor WHERE Empresa = EmpresaP)
+        THEN
+            SET @RESPUESTA = 'El proveedor no existe';
+            SELECT @RESPUESTA AS respuesta;
+            ELSE IF EXISTS(SELECT Nombre FROM Producto WHERE Nombre = NombreP)
+                THEN
+                    SELECT Id_departamento INTO AuxIdDep FROM Departamento WHERE Nombre = NombreDepartamento;
+                    SELECT Id_proveedor INTO AuxIdProv FROM Proveedor WHERE Empresa = EmpresaP;
+
+                    UPDATE Producto SET Descripcion = DescripcionP, Precio_prov = Precio_provP, Precio_vent = Precio_ventP, Marca = MarcaP, Cantidad = CantidadP, Codigo_Barras = Codigo_BarrasP, Id_departamento_FK = AuxIdDep, Id_proveedor_FK = AuxIdProv WHERE Nombre = NombreP;
+                    SET @RESPUESTA = 'Cambio realizado con exito';
+                    SELECT @RESPUESTA AS respuesta;
+                    ELSE 
+                        SET @RESPUESTA = 'No existe Nombre';
+                        SELECT @RESPUESTA AS respuesta;
+            END IF;
+        END IF;
+    END IF;
+END //
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS UpdateProductoPorCB;
+DELIMITER // 
+CREATE PROCEDURE UpdateProductoPorCB( IN NombreP VARCHAR(45), IN DescripcionP VARCHAR(45), IN Precio_provP INT, IN Precio_ventP INT, IN MarcaP VARCHAR(45), IN CantidadP INT, IN Codigo_BarrasP VARCHAR(45), IN NombreDepartamento VARCHAR(45), IN EmpresaP VARCHAR(45))
+BEGIN
+    DECLARE AuxIdDep INT;
+    DECLARE AuxIdProv INT;
+
+    IF NOT EXISTS(SELECT Nombre FROM Departamento WHERE Nombre = NombreDepartamento)
+    THEN
+        SET @RESPUESTA = 'El departamento no existe';
+        SELECT @RESPUESTA AS respuesta;
+    ELSE IF NOT EXISTS(SELECT Empresa FROM Proveedor WHERE Empresa = EmpresaP)
+        THEN
+            SET @RESPUESTA = 'El proveedor no existe';
+            SELECT @RESPUESTA AS respuesta;
+            ELSE IF EXISTS(SELECT Codigo_Barras FROM Producto WHERE Codigo_Barras = Codigo_BarrasP)
+                THEN
+                    SELECT Id_departamento INTO AuxIdDep FROM Departamento WHERE Nombre = NombreDepartamento;
+                    SELECT Id_proveedor INTO AuxIdProv FROM Proveedor WHERE Empresa = EmpresaP;
+
+                    UPDATE Producto SET Nombre = NombreP, Descripcion = DescripcionP, Precio_prov = Precio_provP, Precio_vent = Precio_ventP, Marca = MarcaP, Cantidad = CantidadP, Id_departamento_FK = AuxIdDep, Id_proveedor_FK = AuxIdProv WHERE Codigo_Barras = Codigo_BarrasP;
+                    SET @RESPUESTA = 'Cambio realizado con exito';
+                    SELECT @RESPUESTA AS respuesta;
+                    ELSE 
+                        SET @RESPUESTA = 'No existe codigo de barra';
+                        SELECT @RESPUESTA AS respuesta;
+            END IF;
+        END IF;
+    END IF;
+END //
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS P_Inventario;
+DELIMITER // 
+CREATE PROCEDURE P_Inventario(IN Dato VARCHAR(59))
+BEGIN
+    IF NOT EXISTS(SELECT Codigo_Barras, CONCAT(Nombre,"  " ,Descripcion) AS Producto, Precio_prov, Precio_vent, Cantidad FROM V_Producto WHERE Empresa = Dato OR Codigo_Barras = Dato)
+    THEN
+        SET @RESPUESTA = 'El producto no existe';
+        SELECT @RESPUESTA AS respuesta;
+    ELSE IF EXISTS(SELECT Codigo_Barras, CONCAT(Nombre,"  " ,Descripcion) AS Producto, Precio_prov, Precio_vent, Cantidad FROM V_Producto WHERE Empresa = Dato OR Codigo_Barras = Dato)
+        THEN
+            SET @RESPUESTA = 'Producto encontrado';
+            SELECT @RESPUESTA AS respuesta;
+        END IF;
+    END IF;
+END //
+DELIMITER ;
 
 -- Vistas
 DROP VIEW  IF EXISTS V_Empleados;
 CREATE VIEW V_Empleados AS SELECT Empleado.Nombre, Empleado.Apellido_P, Empleado.Apellido_M, Empleado.Direccion, Empleado.Telefono, Empleado.Usuario, Empleado.Pass, Puesto.Nombre AS Nombre_Puesto, Tienda.Nombre AS Nombre_Tienda FROM Empleado
 LEFT JOIN Tienda ON Tienda.Id_tienda = Empleado.Id_tienda_FK
 LEFT JOIN Puesto ON Puesto.Id_puesto = Empleado.Id_puesto_FK;
+
+DROP VIEW  IF EXISTS V_Producto;
+CREATE VIEW V_Producto AS SELECT Producto.Nombre, Producto.Descripcion, Producto.Precio_prov, Producto.Precio_vent, Producto.Marca, Producto.Cantidad, Producto.Codigo_Barras, Tienda.Nombre AS Tienda, Departamento.Nombre AS Departamento, Proveedor.Empresa AS Empresa FROM Producto
+INNER JOIN Tienda ON Tienda.Id_tienda = Producto.Id_tienda_FK
+INNER JOIN Departamento ON Departamento.Id_departamento = Producto.Id_departamento_FK
+INNER JOIN Proveedor ON Proveedor.Id_proveedor = Producto.Id_proveedor_FK;
 
 -- INSERT-- 
 insert into Tienda(Nombre, Direccion, RFC, Ciudad, Telefono)Values("LG", "Forjadores", "abcde", "La paz", "1234567");
@@ -327,7 +413,10 @@ SELECT * FROM Compra;
 SELECT * FROM Login;
 SELECT * FROM Venta;
 SELECT * FROM CarritoDeCompra;
+SELECT * FROM V_Producto;
 SELECT MAX(Id_venta) FROM Venta;
+SELECT Codigo_Barras, CONCAT(Nombre,"  " ,Descripcion) AS Producto, Precio_prov, Precio_vent, Cantidad FROM V_Producto WHERE Empresa = "HDR" OR Codigo_Barras = "HDR";
+SELECT Codigo_Barras, CONCAT(Nombre,'  ', Descripcion) AS Producto, Precio_prov, Precio_vent, Cantidad FROM Producto;
 SELECT Nombre, Descripcion, Precio_vent FROM Producto WHERE Codigo_Barras = "M02";
 SELECT * FROM V_Empleados where Nombre = 'Jair Isaac';
 

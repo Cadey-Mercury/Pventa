@@ -654,4 +654,279 @@ public class Conexion {
         }
     }
     
+    public String[] SelectProductosPorNombre(String Nombre){
+        
+        
+        String[] txt = new String[8]; 
+        
+        try{
+            
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT Descripcion, Precio_prov, Precio_vent, Marca, Cantidad, Codigo_Barras, Departamento, Empresa FROM V_Producto WHERE Nombre ='" + Nombre + "'");
+            rs.next();
+            
+            do{
+                
+                for(int i = 0; i < txt.length; i++){
+                    
+                    txt[i] = rs.getString(i + 1);
+                    
+                }
+                
+            }while(rs.next());
+            
+        }catch(SQLException ex){
+            
+            JOptionPane.showMessageDialog(null, "Error intente nuevamente!" + ex);
+             
+        }
+         return txt;
+    }
+    
+    public String[] SelectProductosPorCodigoBarra(String CodigoBarra){
+        
+        
+        String[] txt = new String[8]; 
+        
+        try{
+            
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT Nombre, Descripcion, Precio_prov, Precio_vent, Marca, Cantidad, Departamento, Empresa FROM V_Producto WHERE Codigo_Barras ='" + CodigoBarra + "'");
+            rs.next();
+            
+            do{
+                
+                for(int i = 0; i < txt.length; i++){
+                    
+                    txt[i] = rs.getString(i + 1);
+                    
+                }
+                
+            }while(rs.next());
+            
+        }catch(SQLException ex){
+            
+            JOptionPane.showMessageDialog(null, "Error intente nuevamente!" + ex);
+             
+        }
+         return txt;
+    }
+    
+    public void ActualizarProductoPorNombreAndCodigoBarra(String Nombre, String Descripcion, int Precio_Prov, int Precio_Venta, String Marca, int Cantidad, String CodigoBarra, String Departamento, String Proveedor, boolean FlagNombre, boolean FlagCodigoBarra){
+        
+        String Respuesta = "";
+        
+        try {
+            
+            if(FlagNombre){
+                CallableStatement cst = conn.prepareCall("{CALL UpdateProductoPorNombre(? , ?, ?, ?, ?, ?, ?, ?, ?)}");
+                cst.setString(1, Nombre);
+                cst.setString(2, Descripcion);
+                cst.setInt(3, Precio_Prov);
+                cst.setInt(4, Precio_Venta);
+                cst.setString(5, Marca);
+                cst.setInt(6, Cantidad);
+                cst.setString(7, CodigoBarra);
+                cst.setString(8, Departamento);
+                cst.setString(9, Proveedor);
+                rs = cst.executeQuery();
+            
+                while(rs.next()){
+                
+                    Respuesta = rs.getString(1).toString();
+                
+                }
+            
+                JOptionPane.showMessageDialog(null, "Mensaje: " + Respuesta);
+                
+            }else{
+                
+                if(FlagCodigoBarra){
+                    
+                    CallableStatement cst = conn.prepareCall("{CALL UpdateProductoPorCB(? , ?, ?, ?, ?, ?, ?, ?, ?)}");
+                    cst.setString(1, Nombre);
+                    cst.setString(2, Descripcion);
+                    cst.setInt(3, Precio_Prov);
+                    cst.setInt(4, Precio_Venta);
+                    cst.setString(5, Marca);
+                    cst.setInt(6, Cantidad);
+                    cst.setString(7, CodigoBarra);
+                    cst.setString(8, Departamento);
+                    cst.setString(9, Proveedor);
+                    rs = cst.executeQuery();
+            
+                    while(rs.next()){
+                
+                        Respuesta = rs.getString(1).toString();
+                
+                    }
+            
+                    JOptionPane.showMessageDialog(null, "Mensaje: " + Respuesta);
+                    
+                }else{
+                    JOptionPane.showMessageDialog(null, "Le faltan datos!");
+                }
+            }
+            
+        } catch (SQLException ex) {
+            
+            JOptionPane.showMessageDialog(null, "Mensaje: " + ex);
+        }
+    }
+    
+    public DefaultTableModel BuscarInventario(){
+        
+        DefaultTableModel modelo = new DefaultTableModel();
+        int Contador = 1;
+        try {
+            
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT Codigo_Barras, CONCAT(Nombre,'  ', Descripcion) AS Producto, Precio_prov, Precio_vent, Cantidad FROM Producto");
+            rs.next();
+            
+            ResultSetMetaData rsMd = rs.getMetaData();
+            int cantidadColumnas = rsMd.getColumnCount() + 1;
+            
+            modelo.addColumn("Num Lista");
+            modelo.addColumn("Codigo");
+            modelo.addColumn("Producto");
+            modelo.addColumn("Precio Proveedor");
+            modelo.addColumn("Precio Venta");
+            modelo.addColumn("Existencia");
+        
+        
+            do{
+                Object[] filas = new Object[cantidadColumnas];
+                
+                for(int i = 0; i < cantidadColumnas; i++){
+                    
+                    if(i == 0){
+                        
+                        filas[i] = Contador;
+                        Contador++;
+                        
+                    }else{
+                        
+                        filas[i] = rs.getObject(i);
+                        
+                    } 
+                }
+                
+                modelo.addRow(filas);
+                
+            }while(rs.next());
+            
+        } catch (SQLException ex) {
+            
+            JOptionPane.showMessageDialog(null, "No hay productos agregados todavia");
+        }
+        
+        return modelo;
+    }
+    
+    public DefaultTableModel BuscarInventarioPorEmpresaAndCodigoBarra(String Variable){
+        
+        DefaultTableModel modelo = new DefaultTableModel();
+        int Contador = 1;
+        String Respuesta = "";
+        
+        try {
+            
+            
+            CallableStatement cst = conn.prepareCall("{CALL P_Inventario(?)}");
+            cst.setString(1, Variable);
+            rs = cst.executeQuery();
+            
+            while(rs.next()){
+                
+                Respuesta = rs.getString(1).toString();
+            }
+            
+            if(Respuesta.equals("El producto no existe")){
+                
+                JOptionPane.showMessageDialog(null, Respuesta);
+                stmt = conn.createStatement();
+                rs = stmt.executeQuery("SELECT Codigo_Barras, CONCAT(Nombre,'  ', Descripcion) AS Producto, Precio_prov, Precio_vent, Cantidad FROM Producto");
+                rs.next();
+            
+                ResultSetMetaData rsMd = rs.getMetaData();
+                int cantidadColumnas = rsMd.getColumnCount() + 1;
+            
+                modelo.addColumn("Num Lista");
+                modelo.addColumn("Codigo");
+                modelo.addColumn("Producto");
+                modelo.addColumn("Precio Proveedor");
+                modelo.addColumn("Precio Venta");
+                modelo.addColumn("Existencia");
+        
+        
+                do{
+                    Object[] filas = new Object[cantidadColumnas];
+                
+                    for(int i = 0; i < cantidadColumnas; i++){
+                    
+                        if(i == 0){
+                        
+                            filas[i] = Contador;
+                            Contador++;
+                        
+                        }else{
+                        
+                            filas[i] = rs.getObject(i);
+                        
+                        } 
+                    }
+                
+                    modelo.addRow(filas);
+                
+                }while(rs.next());
+                
+            }else{
+                
+                stmt = conn.createStatement();
+                rs = stmt.executeQuery("SELECT Codigo_Barras, CONCAT(Nombre,' ' ,Descripcion) AS Producto, Precio_prov, Precio_vent, Cantidad FROM V_Producto WHERE Empresa = '" + Variable + "' OR Codigo_Barras ='" + Variable + "'");
+                rs.next();
+            
+                ResultSetMetaData rsMd = rs.getMetaData();
+                int cantidadColumnas = rsMd.getColumnCount() + 1;
+            
+                modelo.addColumn("Num Lista");
+                modelo.addColumn("Codigo");
+                modelo.addColumn("Producto");
+                modelo.addColumn("Precio Proveedor");
+                modelo.addColumn("Precio Venta");
+                modelo.addColumn("Existencia");
+        
+        
+                do{
+                    Object[] filas = new Object[cantidadColumnas];
+                
+                    for(int i = 0; i < cantidadColumnas; i++){
+                    
+                        if(i == 0){
+                        
+                            filas[i] = Contador;
+                            Contador++;
+                        
+                        }else{
+                        
+                            filas[i] = rs.getObject(i);
+                        
+                        } 
+                    }
+                
+                    modelo.addRow(filas);
+                
+                }while(rs.next());
+                
+            } 
+            
+        } catch (SQLException ex) {
+            
+            JOptionPane.showMessageDialog(null, "Message " + ex);
+        }
+        
+        return modelo;
+    }
+    
 }

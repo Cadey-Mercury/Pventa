@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -26,6 +27,8 @@ public class Producto extends javax.swing.JFrame {
     Connection bd;
     String Departamento[];
     String Proveedores[];
+    boolean FlagNombre = false, FlagCodigoBarra = false;
+    
     
     public Producto() {
         initComponents();
@@ -89,6 +92,7 @@ public class Producto extends javax.swing.JFrame {
         btnModificar = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         btnHome = new javax.swing.JButton();
+        btnBuscar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(761, 625));
@@ -157,6 +161,13 @@ public class Producto extends javax.swing.JFrame {
         btnHome.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnHomeActionPerformed(evt);
+            }
+        });
+
+        btnBuscar.setText("Buscar");
+        btnBuscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBuscarActionPerformed(evt);
             }
         });
 
@@ -230,7 +241,9 @@ public class Producto extends javax.swing.JFrame {
                                         .addComponent(jLabel3)
                                         .addGap(18, 18, 18)
                                         .addComponent(txtCodigoBarra, javax.swing.GroupLayout.PREFERRED_SIZE, 485, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
-                .addContainerGap(87, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnBuscar, javax.swing.GroupLayout.DEFAULT_SIZE, 69, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -242,7 +255,8 @@ public class Producto extends javax.swing.JFrame {
                 .addGap(37, 37, 37)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
+                    .addComponent(jLabel2)
+                    .addComponent(btnBuscar))
                 .addGap(12, 12, 12)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtCodigoBarra, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -318,13 +332,121 @@ public class Producto extends javax.swing.JFrame {
     }//GEN-LAST:event_btnRegistrarActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
+        String Nombre, Descripcion, Marca, CodigoBarras, Departamento, Proveedor;
+        int Precio_Prove, Precio_Venta, Cantidad;
         
+        Nombre = txtNombre.getText();
+        Descripcion = txtDescripcion.getText();
+        Marca = txtMarca.getText();
+        CodigoBarras = txtCodigoBarra.getText();
+        Precio_Prove = Integer.parseInt(txtPrecio_Prov.getText());
+        Precio_Venta = Integer.parseInt(txtPrecio_Venta.getText());
+        Cantidad = Integer.parseInt(txtCantidadActual.getText());
+        Departamento = jCmbDepartamento.getSelectedItem().toString();
+        Proveedor = jCbxProveedores.getSelectedItem().toString();
+        con.ActualizarProductoPorNombreAndCodigoBarra(Nombre, Descripcion, Precio_Prove, Precio_Venta, Marca, Cantidad, CodigoBarras, Departamento, Proveedor, FlagNombre, FlagCodigoBarra);
+        FlagNombre = false; 
+        FlagCodigoBarra = false;
+        Limpiar();
     }//GEN-LAST:event_btnModificarActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+    public void Limpiar(){
+        txtNombre.setText(null);
+        txtDescripcion.setText(null);
+        txtMarca.setText(null);
+        txtCodigoBarra.setText(null);
+        txtPrecio_Prov.setText(null);
+        txtPrecio_Venta.setText(null);
+        txtCantidadActual.setText(null);
+        jCmbDepartamento.setSelectedIndex(0);
+        jCbxProveedores.setSelectedIndex(0);
+        txtNombre.setEnabled(true);
+        txtCodigoBarra.setEnabled(true);
+    }
     
+    private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
+        String Nombre, CodigoBarras;
+        boolean Flag = false;
+        Nombre = txtNombre.getText().trim();
+        CodigoBarras = txtCodigoBarra.getText().trim();
+        
+        String[] Datos = new String[8];
+        
+        if(Nombre.equals("") == false){
+            
+            Datos = con.SelectProductosPorNombre(Nombre);
+            
+            for(int i = 0; i < Datos.length; i++){
+                
+                if(Datos[i].equals(null)){
+                    
+                    Flag = true;
+                    
+                    break;
+                    
+                }
+            }
+            if(Flag){
+                
+                JOptionPane.showMessageDialog(null, "No existe producto");
+                
+            }else{
+                
+                txtNombre.setEnabled(false);
+                txtDescripcion.setText(Datos[0]);
+                txtPrecio_Prov.setText(Datos[1]);
+                txtPrecio_Venta.setText(Datos[2]);
+                txtMarca.setText(Datos[3]);
+                txtCantidadActual.setText(Datos[4]);
+                txtCodigoBarra.setText(Datos[5]);
+                jCmbDepartamento.setSelectedItem(Datos[6]);
+                jCbxProveedores.setSelectedItem(Datos[7]);
+                btnBuscar.setVisible(false);
+                FlagNombre = true;
+                              
+            }
+            
+        }else{
+            
+            if(CodigoBarras.equals("") == false){
+                Datos = con.SelectProductosPorCodigoBarra(CodigoBarras);
+                
+                for(int i = 0; i < Datos.length; i++){
+                    
+                    if(Datos[i].equals(null)){
+                        
+                        Flag = true;
+                        
+                        break;
+                    }
+                }
+                if(Flag){
+                    
+                     JOptionPane.showMessageDialog(null, "No existe Rfc");
+                     
+                }else{
+                    
+                    txtCodigoBarra.setEnabled(false);
+                    txtNombre.setText(Datos[0]);
+                    txtDescripcion.setText(Datos[1]);
+                    txtPrecio_Prov.setText(Datos[2]);
+                    txtPrecio_Venta.setText(Datos[3]);
+                    txtMarca.setText(Datos[4]);
+                    txtCantidadActual.setText(Datos[5]);
+                    jCmbDepartamento.setSelectedItem(Datos[6]);
+                    jCbxProveedores.setSelectedItem(Datos[7]);
+                    btnBuscar.setVisible(false);
+                    FlagCodigoBarra = true;
+                }
+                
+            }else{
+                
+                JOptionPane.showMessageDialog(null, "Faltan campos por rellenar!");
+                
+            }
+        }
+    }//GEN-LAST:event_btnBuscarActionPerformed
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -358,6 +480,7 @@ public class Producto extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBuscar;
     private javax.swing.JButton btnHome;
     private javax.swing.JButton btnModificar;
     private javax.swing.JButton btnRegistrar;
