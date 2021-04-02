@@ -67,6 +67,7 @@ CREATE TABLE Empleado(
 CREATE TABLE Login(
     Id_login INT PRIMARY KEY AUTO_INCREMENT,
     Id_empleado_FK INT,
+    FechaYHora DATETIME,
     FOREIGN KEY (Id_empleado_FK) REFERENCES Empleado(Id_empleado)
 )ENGINE = INNODB;
 
@@ -100,13 +101,19 @@ CREATE TABLE Compra(
     FOREIGN KEY (Id_producto_FK) REFERENCES Producto(Id_producto)
 )ENGINE = INNODB;
 
+DROP TABLE IF EXISTS Corte;
 CREATE TABLE Corte(
     Id_corte INT PRIMARY KEY AUTO_INCREMENT,
     FechaHora DATETIME NOT NULL,
+    Folio INT NOT NULL,
+    Cajero VARCHAR(50) NOT NULL,
+    N_Venta INT NOT NULL,
+    Caja INT NOT NULL,
+    Fondo_Inicial INT NOT NULL,
+    Total_Venta INT NOT NULL,
+    Total_Entregar INT NOT NULL,
     Id_empleado_FK INT,
-    Id_producto_FK INT,
-    FOREIGN KEY (Id_empleado_FK) REFERENCES Empleado(Id_empleado),
-    FOREIGN KEY (Id_producto_FK) REFERENCES Producto(Id_producto)
+    FOREIGN KEY (Id_empleado_FK) REFERENCES Empleado(Id_empleado)
 )ENGINE = INNODB;
 
 CREATE TABLE Inventario(
@@ -155,6 +162,28 @@ BEGIN
 				SELECT @RESPUESTA AS respuesta;
 			END IF;
 		END IF;
+    END IF;
+END //
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS InsertLogin;
+DELIMITER // 
+CREATE PROCEDURE InsertLogin(IN UsuarioP VARCHAR(45), IN PassP VARCHAR(45))
+BEGIN
+    DECLARE AuxIdEmpleado INT;
+    IF NOT EXISTS(SELECT Id_empleado FROM Empleado WHERE Usuario = UsuarioP AND Pass = PassP)
+    THEN
+        SET @RESPUESTA = 'Datos incorrectos';
+        SELECT @RESPUESTA AS respuesta;
+    ELSE IF EXISTS(SELECT Id_empleado FROM Empleado WHERE Usuario = UsuarioP AND Pass = PassP)
+        THEN
+
+            SELECT Id_empleado INTO AuxIdEmpleado FROM Empleado WHERE Usuario = UsuarioP AND Pass = PassP;
+            INSERT INTO Login(Id_empleado_FK,FechaYHora) VALUES (AuxIdEmpleado, NOW());
+            SET @RESPUESTA = 'Bienvenido!!';
+            SELECT @RESPUESTA AS respuesta;
+
+        END IF;
     END IF;
 END //
 DELIMITER ;
@@ -393,7 +422,7 @@ insert into Proveedor(Nombre, RFC, Telefono, Empresa, Direccion, Estado, Municip
 INSERT INTO Puesto(Nombre)VALUES("Administrador");
 insert into Departamento(Nombre) Values("Salchichoneria"),("Frutas y Verduras"),("Abarrotes"),("Bebidas");
 insert into Producto(Nombre, Descripcion, Precio_prov, Precio_vent, Marca, Cantidad, Codigo_Barras, Id_tienda_FK, Id_departamento_FK, Id_proveedor_FK) Values
-    ("Pepsi","600ml",13 ,15, "Pepsi",10,"P01",1,4,1),("Vita","600ml", 13, 15,"Pepsi",5,"V01",1,4,1),("Mirinda","1Lt", 22, 25,"Pepsi",8,"M02",1,4,1);
+    ("Pepsi","600ml",13 ,15, "Pepsi",100,"P01",1,4,1),("Vita","600ml", 13, 15,"Pepsi",100,"V01",1,4,1),("Mirinda","1Lt", 22, 25,"Pepsi",100,"M02",1,4,1);
 -- insert into Empleado(Nombre, Apellido_P, Apellido_M, Direccion, Telefono, Usuario, Pass, Id_tienda_FK, Id_puesto_FK)Values("Jair", "Estrada", "Palomino",
  -- "Marquez de leon", "123456", "Jest", "1234", 1, 1);
 -- INSERT INTO Login(Id_empleado_FK)VALUES(1);
@@ -414,6 +443,13 @@ SELECT * FROM Login;
 SELECT * FROM Venta;
 SELECT * FROM CarritoDeCompra;
 SELECT * FROM V_Producto;
+SELECT * FROM Corte;
+SELECT NOW() AS FechaYHora;
+SELECT MAX(FechaYHora) AS Fecha_Y_Hora FROM Login;
+SELECT sum(Total) as TotalV FROM Venta where FechaHora BETWEEN '2021-04-01 10:57:30' AND '2021-04-01 10:59:41';
+SELECT CONCAT(Empleado.Nombre," ",Empleado.Apellido_P, " ", Empleado.Apellido_M) AS Cajero , COUNT(*) AS "Numero de ventas", SUM(Total) as "Total Ventas" FROM Venta 
+INNER JOIN Empleado ON Venta.Id_empleado_FK = Empleado.Id_empleado
+where FechaHora BETWEEN '2021-04-01 10:57:30' AND '2021-04-01 10:59:41';
 SELECT MAX(Id_venta) FROM Venta;
 SELECT Codigo_Barras, CONCAT(Nombre,"  " ,Descripcion) AS Producto, Precio_prov, Precio_vent, Cantidad FROM V_Producto WHERE Empresa = "HDR" OR Codigo_Barras = "HDR";
 SELECT Codigo_Barras, CONCAT(Nombre,'  ', Descripcion) AS Producto, Precio_prov, Precio_vent, Cantidad FROM Producto;

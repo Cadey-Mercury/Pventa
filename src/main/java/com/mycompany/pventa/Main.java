@@ -71,7 +71,7 @@ public class Main extends javax.swing.JFrame {
         txtCodigoDeBarra = new javax.swing.JTextField();
         txtCantidad = new javax.swing.JTextField();
         jInsertProducto = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        btnPagar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -193,11 +193,11 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
-        jButton2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        jButton2.setText("Pagar");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        btnPagar.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        btnPagar.setText("Pagar");
+        btnPagar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                btnPagarActionPerformed(evt);
             }
         });
 
@@ -228,7 +228,7 @@ public class Main extends javax.swing.JFrame {
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnPagar, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(289, 289, 289))
         );
         jPanel1Layout.setVerticalGroup(
@@ -249,7 +249,7 @@ public class Main extends javax.swing.JFrame {
                     .addComponent(txtCantidad, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jInsertProducto))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
-                .addComponent(jButton2)
+                .addComponent(btnPagar)
                 .addContainerGap())
         );
 
@@ -276,13 +276,13 @@ public class Main extends javax.swing.JFrame {
         
         for(int i = 0; i < jtProducto.getRowCount(); i++){
             TotalVenta += Integer.parseInt(jtProducto.getValueAt(i, 3).toString());
-            TotalCantidad += Integer.parseInt(jtProducto.getValueAt(i, 2).toString());
+            TotalCantidad += Integer.parseInt(jtProducto.getValueAt(i, 1).toString());
         }
         
         jLabel2.setText("Total Venta: " + TotalVenta);
     }//GEN-LAST:event_jInsertProductoActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void btnPagarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPagarActionPerformed
        Cambio = 0;
        Pago = 0;
        Pago = Integer.parseInt(txtPago.getText());
@@ -291,7 +291,7 @@ public class Main extends javax.swing.JFrame {
        con.InsertarVenta(TotalVenta, Cambio, Pago, TotalCantidad, Integer.parseInt(Id_Empleado));
        LimpiarPantalla();
        this.jtProducto.setModel(con.LimpiarJTable());
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_btnPagarActionPerformed
 
     private void jComboBox1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBox1ItemStateChanged
         
@@ -330,7 +330,7 @@ public class Main extends javax.swing.JFrame {
             }
             case 6:{
                     this.setVisible(false);
-                    new Producto().setVisible(true);
+                    new Corte().setVisible(true);
                 break;
             }
         }
@@ -384,7 +384,7 @@ public class Main extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton btnPagar;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JButton jInsertProducto;

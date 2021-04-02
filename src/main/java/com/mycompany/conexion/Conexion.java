@@ -59,27 +59,35 @@ public class Conexion {
     }
     
     public String LogIn(String Usuario, String Contraseña){
-        
         //Verificacion del usuario que inicia sesion
-        
-       String Dato = null;
-        
+        String Dato = null;
+        String Respuesta = "";
         try {
-            stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT Id_empleado, Nombre, Apellido_P, Usuario, Pass FROM Empleado WHERE Usuario ='" + Usuario + "' AND Pass ='" + Contraseña + "' ");
-            rs.next();
-            do{
-               
-                
-                if(rs.getString("Usuario").equals(Usuario) && rs.getString("Pass").equals(Contraseña)){
-                    Dato = rs.getString("Nombre") + " " + rs.getString("Apellido_P");
-                    Id_Empleado = rs.getString("Id_empleado");
-                }
-                
-            }while(rs.next());
             
+            CallableStatement cst = conn.prepareCall("{CALL InsertLogin(?,?)}");
+            cst.setString(1, Usuario);
+            cst.setString(2, Contraseña);
+            rs = cst.executeQuery();
+            
+            while(rs.next()){
+                Respuesta = rs.getString(1).toString();
+            }
+            
+            if(Respuesta.equals("Bienvenido!!")){
+                stmt = conn.createStatement();
+                rs = stmt.executeQuery("SELECT Id_empleado, Nombre, Apellido_P, Usuario, Pass FROM Empleado WHERE Usuario ='" + Usuario + "' AND Pass ='" + Contraseña + "' ");
+                rs.next();
+                do{
+                    if(rs.getString("Usuario").equals(Usuario) && rs.getString("Pass").equals(Contraseña)){
+                        Dato = rs.getString("Nombre") + " " + rs.getString("Apellido_P");
+                        Id_Empleado = rs.getString("Id_empleado");
+                    }
+                }while(rs.next());
+            }else{
+                JOptionPane.showMessageDialog(null, "Message: " + Respuesta);
+            } 
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error, intente nuevamente... ");
+            JOptionPane.showMessageDialog(null, "Message: " + ex);
         }
         return Dato;
     }
@@ -927,6 +935,81 @@ public class Conexion {
         }
         
         return modelo;
+    }
+    
+    public String[] BuscarCorte(){
+        
+        String[] txt = new String[3];
+        String Dato = "", FechaAndHora = "";
+        try{
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT MAX(FechaYHora) AS Fecha_Y_Hora FROM Login");
+            rs.next();
+            do{
+                Dato = rs.getString("Fecha_Y_Hora");
+            }while(rs.next());
+            
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT NOW() AS FechaYHora");
+            rs.next();
+            do{
+                FechaAndHora = rs.getString("FechaYHora");
+            }while(rs.next());
+            
+            stmt = conn.createStatement();
+            
+            rs = stmt.executeQuery("SELECT CONCAT(Empleado.Nombre,' ',Empleado.Apellido_P, ' ', Empleado.Apellido_M) AS Cajero , COUNT(*) AS 'Numero de ventas', SUM(Total) as 'Total Ventas' FROM Venta INNER JOIN Empleado ON Venta.Id_empleado_FK = Empleado.Id_empleado where FechaHora BETWEEN'" + Dato + "' AND '" + FechaAndHora + "'");
+            
+            rs.next();
+            
+            do{
+                
+                for(int i = 0; i < txt.length; i++){
+                    
+                    txt[i] = rs.getString(i + 1);
+                    
+                }
+                
+            }while(rs.next());
+            
+        }catch(SQLException ex){
+            
+            JOptionPane.showMessageDialog(null, "Message: " + ex);
+        }
+        
+        return txt;
+    }
+    
+    public void InsertarCorte(int Folio, String Cajero, int N_Venta, int Caja, int Fondo_Inicial, int Total_Venta, int Total_Entregar, int Id){
+        
+        String FechaAndHora = ""; 
+        
+        try {
+            
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT NOW() AS FechaYHora");
+            rs.next();
+            do{
+                FechaAndHora = rs.getString("FechaYHora");
+            }while(rs.next());
+            
+            ps = conn.prepareStatement("INSERT INTO Corte(FechaHora, Folio, Cajero, N_Venta, Caja, Fondo_Inicial, Total_venta, Total_Entregar, Id_empleado_FK) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            ps.setString(1, FechaAndHora);  
+            ps.setInt(2, Folio);  
+            ps.setString(3, Cajero);  
+            ps.setInt(4, N_Venta);
+            ps.setInt(5, Caja);
+            ps.setInt(6, Fondo_Inicial);
+            ps.setInt(7, Total_Venta);
+            ps.setInt(8, Total_Entregar);
+            ps.setInt(9, Id);
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Registro completado!");
+            
+        } catch (SQLException ex) {
+            
+            JOptionPane.showMessageDialog(null, "Error intente de nuevo" + ex);
+        }
     }
     
 }
