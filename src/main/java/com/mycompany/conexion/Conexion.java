@@ -162,7 +162,7 @@ public class Conexion {
         
         try {
             
-            ps = conn.prepareStatement("INSERT INTO Venta(FechaHora,Total,Cambio,Pago,Cantidad,Id_empleado_FK) VALUES (NOW(), ?, ?, ?, ?, ?)");
+            ps = conn.prepareStatement("INSERT INTO Venta(Fecha, Hora,Total,Cambio,Pago,Cantidad,Id_empleado_FK) VALUES (NOW(), NOW(), ?, ?, ?, ?, ?)");
             ps.setInt(1, TotalVenta);  
             ps.setInt(2, Cambio);  
             ps.setInt(3, Pago);  
@@ -1010,6 +1010,189 @@ public class Conexion {
             
             JOptionPane.showMessageDialog(null, "Error intente de nuevo" + ex);
         }
+    }
+    
+    public DefaultTableModel BuscarVenta(){
+        
+        DefaultTableModel modelo = new DefaultTableModel();
+        
+        try {
+            
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT Venta.Id_venta, CONCAT(Empleado.Nombre, ' ', Empleado.Apellido_P, ' ', Empleado.Apellido_M) AS Cajero, Venta.Total, Venta.Pago, Venta.Cambio, Venta.Cantidad,  CONCAT(Venta.Fecha, Venta.Hora) AS 'Fecha y Hora' FROM Venta INNER JOIN Empleado ON Empleado.Id_empleado = Venta.Id_empleado_FK");
+            rs.next();
+            
+            ResultSetMetaData rsMd = rs.getMetaData();
+            int cantidadColumnas = rsMd.getColumnCount();
+            
+            modelo.addColumn("Ticket");
+            modelo.addColumn("Cajero");
+            modelo.addColumn("Total");
+            modelo.addColumn("Pago");
+            modelo.addColumn("Cambio");
+            modelo.addColumn("Cantidad");
+            modelo.addColumn("Fecha y Hora");
+        
+        
+            do{
+                Object[] filas = new Object[cantidadColumnas];
+                
+                for(int i = 0; i < cantidadColumnas; i++){
+                    
+                    filas[i] = rs.getObject(i + 1);
+                    
+                }
+                
+                modelo.addRow(filas);
+                
+            }while(rs.next());
+            
+        } catch (SQLException ex) {
+            
+            JOptionPane.showMessageDialog(null, "Message " + ex);
+        }
+        
+        return modelo;
+    }
+    
+    public DefaultTableModel BuscarVentaPorTicket(int Variable){
+        
+        DefaultTableModel modelo = new DefaultTableModel();
+        
+        try {
+            
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT Venta.Id_venta, CONCAT(Empleado.Nombre, ' ', Empleado.Apellido_P, ' ', Empleado.Apellido_M) AS Cajero, Venta.Total, Venta.Pago, Venta.Cambio, Venta.Cantidad,  CONCAT(Venta.Fecha, Venta.Hora) AS 'Fecha y Hora' FROM Venta INNER JOIN Empleado ON Empleado.Id_empleado = Venta.Id_empleado_FK WHERE Id_venta ='" +  Variable + "'");
+            rs.next();
+            
+            ResultSetMetaData rsMd = rs.getMetaData();
+            int cantidadColumnas = rsMd.getColumnCount();
+            
+            modelo.addColumn("Ticket");
+            modelo.addColumn("Cajero");
+            modelo.addColumn("Total");
+            modelo.addColumn("Pago");
+            modelo.addColumn("Cambio");
+            modelo.addColumn("Cantidad");
+            modelo.addColumn("Fecha y Hora");
+        
+        
+            do{
+                Object[] filas = new Object[cantidadColumnas];
+                
+                for(int i = 0; i < cantidadColumnas; i++){
+                    
+                    filas[i] = rs.getObject(i + 1);
+                    
+                }
+                
+                modelo.addRow(filas);
+                
+            }while(rs.next());
+            
+        } catch (SQLException ex) {
+            
+            JOptionPane.showMessageDialog(null, "No existe el ticket");
+        }
+        
+        return modelo;
+    }
+    
+    public DefaultTableModel BuscarVentaPorFechas(String Fd, String Fa){
+        
+         DefaultTableModel modelo = new DefaultTableModel();
+        
+        try {
+            
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT Venta.Id_venta, CONCAT(Empleado.Nombre, ' ', Empleado.Apellido_P, ' ', Empleado.Apellido_M) AS Cajero, Venta.Total, Venta.Pago, Venta.Cambio, Venta.Cantidad,  CONCAT(Venta.Fecha, Venta.Hora) AS 'Fecha y Hora' FROM Venta INNER JOIN Empleado ON Empleado.Id_empleado = Venta.Id_empleado_FK WHERE Fecha BETWEEN'" + Fd + "' AND '" + Fa + "'");
+            rs.next();
+            
+            ResultSetMetaData rsMd = rs.getMetaData();
+            int cantidadColumnas = rsMd.getColumnCount();
+            
+            modelo.addColumn("Ticket");
+            modelo.addColumn("Cajero");
+            modelo.addColumn("Total");
+            modelo.addColumn("Pago");
+            modelo.addColumn("Cambio");
+            modelo.addColumn("Cantidad");
+            modelo.addColumn("Fecha y Hora");
+        
+        
+            do{
+                Object[] filas = new Object[cantidadColumnas];
+                
+                for(int i = 0; i < cantidadColumnas; i++){
+                    
+                    filas[i] = rs.getObject(i + 1);
+                    
+                }
+                
+                modelo.addRow(filas);
+                
+            }while(rs.next());
+            
+        } catch (SQLException ex) {
+            
+            JOptionPane.showMessageDialog(null, "No existe el ticket");
+        }
+        
+        return modelo;
+    }
+    
+    public DefaultTableModel BuscarCompraPorRfcÓEmpresa(String Rfc, String Empresa){
+        
+        DefaultTableModel modelo = new DefaultTableModel();
+        String Id = "";
+        try {
+            
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT Id_proveedor FROM Proveedor WHERE RFC ='" + Rfc + "' OR ' Empresa =" + Empresa + "'");
+            rs.next();
+            do{
+                Id = rs.getString("Id_proveedor");
+            }while(rs.next());
+            
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT CONCAT(Nombre, ' ', Descripcion) AS Nombre, Precio_vent FROM Producto WHERE Id_proveedor_FK ='" + Id + "'");
+            rs.next();
+            
+            ResultSetMetaData rsMd = rs.getMetaData();
+            int cantidadColumnas = rsMd.getColumnCount() + 2;
+            
+            modelo.addColumn("Nombre(Descripcion)");
+            modelo.addColumn("Cantidad");
+            modelo.addColumn("Precio");
+            modelo.addColumn("Total");
+        
+        
+            do{
+                Object[] filas = new Object[cantidadColumnas];
+                
+                for(int i = 0; i < cantidadColumnas; i++){
+                    
+                    if(i == 0){
+                        filas[i] = rs.getObject(i + 1);
+                    }else{
+                        if(i == 2){
+                            filas[i] = rs.getObject(i);
+                        }else{
+                            filas[i] = 0;
+                        }
+                    }
+                }
+                
+                modelo.addRow(filas);
+                
+            }while(rs.next());
+            
+        } catch (SQLException ex) {
+            
+            JOptionPane.showMessageDialog(null, "Message : " + ex);
+        }
+        
+        return modelo;
     }
     
 }

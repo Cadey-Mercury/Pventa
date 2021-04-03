@@ -74,7 +74,8 @@ CREATE TABLE Login(
 -- drop table if exists Venta;
 CREATE TABLE Venta(
     Id_venta INT PRIMARY KEY AUTO_INCREMENT,
-    FechaHora DATETIME NOT NULL,
+    Fecha DATE NOT NULL,
+    Hora TIME NOT NULL,
     Total INT NOT NULL,
     Cambio VARCHAR(45) NOT NULL,
     Pago INT NOT NULL,
@@ -97,8 +98,8 @@ CREATE TABLE Compra(
     Id_compra INT PRIMARY KEY AUTO_INCREMENT,
     Folio INT NOT NULL,
     Cantidad INT NOT NULL,
-    Id_producto_FK INT,
-    FOREIGN KEY (Id_producto_FK) REFERENCES Producto(Id_producto)
+    Id_proveedor_FK INT,
+    FOREIGN KEY (Id_proveedor_FK) REFERENCES Proveedor(Id_proveedor)
 )ENGINE = INNODB;
 
 DROP TABLE IF EXISTS Corte;
@@ -423,10 +424,11 @@ INSERT INTO Puesto(Nombre)VALUES("Administrador");
 insert into Departamento(Nombre) Values("Salchichoneria"),("Frutas y Verduras"),("Abarrotes"),("Bebidas");
 insert into Producto(Nombre, Descripcion, Precio_prov, Precio_vent, Marca, Cantidad, Codigo_Barras, Id_tienda_FK, Id_departamento_FK, Id_proveedor_FK) Values
     ("Pepsi","600ml",13 ,15, "Pepsi",100,"P01",1,4,1),("Vita","600ml", 13, 15,"Pepsi",100,"V01",1,4,1),("Mirinda","1Lt", 22, 25,"Pepsi",100,"M02",1,4,1);
--- insert into Empleado(Nombre, Apellido_P, Apellido_M, Direccion, Telefono, Usuario, Pass, Id_tienda_FK, Id_puesto_FK)Values("Jair", "Estrada", "Palomino",
- -- "Marquez de leon", "123456", "Jest", "1234", 1, 1);
+insert into Empleado(Nombre, Apellido_P, Apellido_M, Direccion, Telefono, Usuario, Pass, Id_tienda_FK, Id_puesto_FK)Values("Jair", "Estrada", "Palomino",
+"Marquez de leon", "123456", "est", "1", 1, 1);
 -- INSERT INTO Login(Id_empleado_FK)VALUES(1);
 -- INSERT INTO Venta(FechaHora,Total,Cambio,Pago,Cantidad,Id_empleado_FK) VALUES (NOW(),100,0,100,2,1);
+INSERT INTO Venta(Fecha, Hora,Total,Cambio,Pago,Cantidad,Id_empleado_FK) VALUES ("2021-01-07","10:16:31",100,0,100,2,1);
 
 
 

@@ -167,7 +167,7 @@ public class Main extends javax.swing.JFrame {
         );
 
         jComboBox1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Menú", "Compras", "Productos", "Inventario", "Proveedor", "Departamento", "Cambio Cajero" }));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Menú", "Compras", "Venta", "Productos", "Inventario", "Proveedor", "Departamento", "Cambio Cajero" }));
         jComboBox1.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 jComboBox1ItemStateChanged(evt);
@@ -308,27 +308,32 @@ public class Main extends javax.swing.JFrame {
                     new AdminCompra().setVisible(true);
                 break;
             }
-            case 2:{
+            case 2:{ 
                     this.setVisible(false);
-                    new Producto().setVisible(true);
+                    new Venta().setVisible(true);
                 break;
             }
             case 3:{
                     this.setVisible(false);
-                    new Inventario().setVisible(true);
+                    new Producto().setVisible(true);
                 break;
             }
             case 4:{
                     this.setVisible(false);
-                    new Proveedor().setVisible(true);
+                    new Inventario().setVisible(true);
                 break;
             }
             case 5:{
                     this.setVisible(false);
-                    new Departamento().setVisible(true);
+                    new Proveedor().setVisible(true);
                 break;
             }
             case 6:{
+                    this.setVisible(false);
+                    new Departamento().setVisible(true);
+                break;
+            }
+            case 7:{
                     this.setVisible(false);
                     new Corte().setVisible(true);
                 break;
