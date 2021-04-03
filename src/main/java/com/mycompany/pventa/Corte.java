@@ -245,7 +245,7 @@ public class Corte extends javax.swing.JFrame {
 
     public void Mostrar(){
         String[] Dato =  new String[3];
-        Dato = con.BuscarCorte();
+        //Dato = con.BuscarCorte();
         txtCajero.setText(Dato[0]);
         txtN_Venta.setText(Dato[1]);
         txtTotal_Venta.setText(Dato[2]);
